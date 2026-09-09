@@ -5981,6 +5981,20 @@ def run_desktop_agent(task, max_iterations=15, use_voice=True, voice_model="tiny
                                     print(f"[FAST] {action} {msg}")
                                     fast_handled = True
                                 if not fast_handled:
+                                    from services.file_index import parse_request as _parse_file_req, open_recent as _open_recent
+                                    req = _parse_file_req(voice_text)
+                                    if req:
+                                        r = _open_recent(**req)
+                                        if r.get("success"):
+                                            msg = f"{t('app_opened')} · {r.get('name')}"
+                                        else:
+                                            msg = t("no_file_found")
+                                        add_task(voice_text)
+                                        complete_current_task()
+                                        update_agent_response(msg, speak=True)
+                                        print(f"[FAST] open_recent {req} -> {r.get('name') or r.get('message')}")
+                                        fast_handled = True
+                                if not fast_handled:
                                     site = match_fast_site(voice_text) or match_fast_site_search(voice_text)
                                     if site:
                                         r = open_url(site)
@@ -6446,6 +6460,12 @@ if __name__ == "__main__":
         print(f"[MAIN] Smart features loaded (clipboard, sysinfo, reminders={n}, desktop)")
     except Exception as e:
         print(f"[MAIN] Smart features error: {e}")
+
+    try:
+        from services.file_index import start_indexer
+        start_indexer()
+    except Exception as e:
+        print(f"[FILES] indexer: {e}")
 
     try:
         _tg_token = (os.environ.get("DAVI_TELEGRAM_TOKEN") or "").strip()

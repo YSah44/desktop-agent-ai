@@ -104,6 +104,25 @@ def _find_files(params, _command):
     return find_files(query, scope=scope, path=path)
 
 
+def _search_files(params, _command):
+    from services.file_index import search, describe
+    query = params.get("query") or params.get("text") or params.get("name") or ""
+    kind = params.get("kind") or params.get("type")
+    days = params.get("days")
+    try:
+        days = int(days) if days not in (None, "") else None
+    except (TypeError, ValueError):
+        days = None
+    folder = params.get("folder")
+    results = search(query=query, kind=kind, days=days, folder=folder, limit=int(params.get("limit") or 8))
+    return {"success": bool(results), "message": describe(results), "results": results}
+
+
+def _open_path(params, _command):
+    from services.file_index import open_path
+    return open_path(params.get("path") or params.get("file") or "")
+
+
 def _manage_window(params, _command):
     action = params.get("action") or ""
     title = params.get("title") or params.get("name")
@@ -161,7 +180,8 @@ _HANDLERS = {
     "list_windows": _list_windows,
     "get_running_apps": _list_windows,
     "find_files": _find_files,
-    "search_files": _find_files,
+    "search_files": _search_files,
+    "open_path": _open_path,
     "manage_window": _manage_window,
     "snap_window": _snap_window,
     "delete_file": _delete_file,
