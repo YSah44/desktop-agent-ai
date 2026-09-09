@@ -1285,6 +1285,7 @@ class StatusOverlay:
         self._build_listen_setting(stg_body_inner)
         self._build_speech_setting(stg_body_inner)
         self._build_appearance_setting(stg_body_inner)
+        self._build_privacy_setting(stg_body_inner)
         self._build_memory_setting(stg_body_inner)
         self._build_notes_setting(stg_body_inner)
         self._build_routines_setting(stg_body_inner)
@@ -1950,6 +1951,36 @@ class StatusOverlay:
         clear_notes()
         self.refresh_notes()
         self._position_settings_window()
+
+    def _build_privacy_setting(self, parent):
+        from services.i18n import t as _t
+        from services.privacy import blocklist
+        self._stg_divider(parent)
+        self._lbl_blocklist = self._stg_heading(parent, _t("blocklist_title"))
+        self._blocklist_var = tk.StringVar(value=", ".join(blocklist()))
+        self._blocklist_entry = tk.Entry(
+            parent, textvariable=self._blocklist_var, font=("Segoe UI", 8), bg=self.BG3, fg=self.TEXT,
+            insertbackground=self.TEXT, bd=0, highlightthickness=1, highlightbackground=self.BORDER,
+            highlightcolor=self.ACCENT,
+        )
+        self._blocklist_entry.pack(fill=tk.X, padx=8, pady=(4, 0), ipady=3)
+        self._blocklist_entry.bind("<Return>", lambda e: self._save_blocklist())
+        self._blocklist_hint = tk.Label(parent, text=_t("blocklist_hint"), fg=self.DIM, bg=self.CARD,
+                                        font=("Segoe UI", 7), anchor="w", justify=tk.LEFT, wraplength=330)
+        self._blocklist_hint.pack(fill=tk.X, padx=8)
+        self._blocklist_save = tk.Button(
+            parent, text=_t("blocklist_save"), fg=self.DIM, bg=self.BG3, font=("Segoe UI", 7), bd=0,
+            padx=6, pady=3, cursor="hand2", activebackground=self.ACCENT, activeforeground="#ffffff",
+            command=self._save_blocklist,
+        )
+        self._blocklist_save.pack(fill=tk.X, padx=8, pady=(4, 0))
+
+    def _save_blocklist(self):
+        from services.i18n import t as _t
+        from services.privacy import set_blocklist
+        items = set_blocklist(self._blocklist_var.get())
+        self._blocklist_var.set(", ".join(items))
+        self._stg_flash(_t("settings_saved"))
 
     def _build_routines_setting(self, parent):
         from services.i18n import t as _t
@@ -5680,7 +5711,25 @@ def _llm_generate(messages):
     return generated_text, commands, text
 
 
+def _screen_blocked():
+    """True when the foreground window matches the user's privacy list (bank, password manager…)."""
+    from services.privacy import is_blocked
+    return is_blocked(_active_window_title())
+
+
+def _screen_image_part(b64):
+    """Message part for a screenshot; a plain note when the screen was withheld."""
+    if not b64:
+        return {"type": "text", "text": "Screenshot withheld: the foreground app is on the user's privacy blocklist. Do not guess what is on screen; ask the user or use keyboard-only actions."}
+    return {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}}
+
+
 def _capture_screen_b64():
+    if _screen_blocked():
+        print("[SHOT] withheld — foreground app is on the privacy blocklist")
+        update_agent_status(t("screen_withheld_status"))
+        return ""
+    update_agent_status(t("looking"))
     save_screenshot()
     b64 = ensure_screenshot_b64()
     if not b64:
@@ -5740,7 +5789,7 @@ def _answer_screen_question(voice_text):
                 ),
             },
             {"type": "text", "text": f"Current screenshot ({sw}x{sh}, height-scaled to 720px):"},
-            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{fullscreen_img}"}},
+            _screen_image_part(fullscreen_img),
             *_camera_vision_parts(),
         ],
     }]
@@ -6187,7 +6236,7 @@ def run_desktop_agent(task, max_iterations=15, use_voice=True, voice_model="tiny
                     {"type": "text", "text": f"User said: {voice_text}"},
                     {"type": "text", "text": _pc_context(include_apps=True)},
                     {"type": "text", "text": "Current screenshot (height-scaled to 720px):"},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{fullscreen_img}"}},
+                    _screen_image_part(fullscreen_img),
                 ]
                 message_content.extend(_camera_vision_parts())
 
@@ -6331,7 +6380,7 @@ def run_desktop_agent(task, max_iterations=15, use_voice=True, voice_model="tiny
                                     )
                                 follow_content = [
                                     {"type": "text", "text": follow_text},
-                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{fullscreen_img}"}}
+                                    _screen_image_part(fullscreen_img),
                                 ]
                                 conversation_messages.append({'role': 'user', 'content': follow_content})
                                 conversation_messages = _trim_conversation(conversation_messages)
