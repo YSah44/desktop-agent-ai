@@ -57,7 +57,7 @@
       extOff: "Not connected yet",
       extHere: "This page is the loaded extension",
       loadedHint: "chrome-extension / already loaded — use Reload after updates",
-      hint: "v1.3.1 · ws://localhost:8769 · local only"
+      hint: "v1.3.2 · ws://localhost:8769 · local only"
     },
     tr: {
       title: "Aemyos Köprü",
@@ -114,7 +114,7 @@
       extOff: "Henüz bağlı değil",
       extHere: "Bu sayfa yüklü uzantıdan açık",
       loadedHint: "chrome-extension / zaten yüklü — güncellemeden sonra Reload",
-      hint: "v1.3.1 · ws://localhost:8769 · yalnızca yerel"
+      hint: "v1.3.2 · ws://localhost:8769 · yalnızca yerel"
     },
     es: {
       title: "Puente Aemyos",
@@ -171,7 +171,7 @@
       extOff: "Aún no conectado",
       extHere: "Esta página es la extensión cargada",
       loadedHint: "chrome-extension / ya cargada — usa Recargar tras actualizar",
-      hint: "v1.3.1 · ws://localhost:8769 · solo local"
+      hint: "v1.3.2 · ws://localhost:8769 · solo local"
     },
     de: {
       title: "Aemyos-Brücke",
@@ -228,7 +228,7 @@
       extOff: "Noch nicht verbunden",
       extHere: "Diese Seite kommt aus der geladenen Erweiterung",
       loadedHint: "chrome-extension / bereits geladen — nach Updates neu laden",
-      hint: "v1.3.1 · ws://localhost:8769 · nur lokal"
+      hint: "v1.3.2 · ws://localhost:8769 · nur lokal"
     },
     fr: {
       title: "Pont Aemyos",
@@ -285,7 +285,7 @@
       extOff: "Pas encore connecté",
       extHere: "Cette page vient de l’extension chargée",
       loadedHint: "chrome-extension / déjà chargée — recharger après une mise à jour",
-      hint: "v1.3.1 · ws://localhost:8769 · local uniquement"
+      hint: "v1.3.2 · ws://localhost:8769 · local uniquement"
     }
   };
 
