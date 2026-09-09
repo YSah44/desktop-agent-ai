@@ -886,7 +886,7 @@ def open_app_via_start(name):
 
 # ── Shell Command Execution ─────────────────────────────────────
 
-def run_shell_command(command, timeout=15):
+def run_shell_command(command, timeout=15, cwd=None):
     BLOCKED = ['format ', 'del /s', 'del /f', 'rm -rf', 'rmdir /s',
                'shutdown', 'restart', '::{', 'reg delete',
                'Remove-Item -Recurse -Force C:', 'Remove-Item -Recurse -Force /']
@@ -895,15 +895,30 @@ def run_shell_command(command, timeout=15):
         if b.lower() in cmd_lower:
             return {"success": False, "output": f"BLOCKED: dangerous command pattern '{b}'"}
     try:
+        timeout = max(1, min(int(timeout or 15), 300))
+    except (TypeError, ValueError):
+        timeout = 15
+    workdir = None
+    if cwd:
+        workdir = os.path.expanduser(str(cwd))
+        if not os.path.isdir(workdir):
+            return {"success": False, "output": f"cwd not found: {workdir}"}
+    try:
         r = subprocess.run(
             ["powershell", "-NoProfile", "-Command", command],
             capture_output=True, text=True, timeout=timeout,
-            creationflags=0x08000000
+            creationflags=0x08000000, cwd=workdir,
         )
         out = (r.stdout or "").strip()
         err = (r.stderr or "").strip()
-        output = out if out else err
-        return {"success": r.returncode == 0, "output": output[:3000]}
+        # Build/test tools print progress to stdout and the error to stderr; the model needs both.
+        parts = []
+        if out:
+            parts.append(out)
+        if err:
+            parts.append("[stderr]\n" + err)
+        parts.append(f"[exit code {r.returncode}]")
+        return {"success": r.returncode == 0, "output": "\n".join(parts)[:6000]}
     except subprocess.TimeoutExpired:
         return {"success": False, "output": f"Command timed out after {timeout}s"}
     except Exception as e:

@@ -787,7 +787,7 @@ def execute_batch_commands(commands):
                 from services.smart_features import run_shell_command
                 cmd = command['params'].get('command', '')
                 timeout = command['params'].get('timeout', 15)
-                r = run_shell_command(cmd, timeout)
+                r = run_shell_command(cmd, timeout, cwd=command['params'].get('cwd'))
                 result["success"] = r["success"]
                 result["message"] = f"[SHELL] $ {cmd}\n{r['output']}"
                 results.append(result)

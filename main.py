@@ -5499,6 +5499,21 @@ def _handle_personal_voice(voice_text):
     return False
 
 
+_VERBOSE_RESULT_CMDS = {
+    "run_command", "read_file", "list_files", "search_files", "get_running_apps",
+    "clipboard_read", "read_screen", "find_text", "get_system_info", "list_windows",
+    "network_info", "web_search", "browser_get_summary", "browser_read_page",
+}
+
+
+def _clip_middle(text, head=700, tail=1100):
+    """Keep the start and the end — build/test errors live at the end of shell output."""
+    text = str(text or "")
+    if len(text) <= head + tail:
+        return text
+    return text[:head] + "\n…[snip]…\n" + text[-tail:]
+
+
 def _command_results_text(results):
     if not results:
         return "No command results."
@@ -5506,7 +5521,8 @@ def _command_results_text(results):
     for r in results:
         mark = "OK" if r.get("success") else "FAIL"
         cmd = r.get("command", "?")
-        msg = str(r.get("message", ""))[:200]
+        raw = str(r.get("message", ""))
+        msg = _clip_middle(raw) if cmd in _VERBOSE_RESULT_CMDS else raw[:200]
         lines.append(f"{mark} {cmd}: {msg}")
     return "\n".join(lines)
 
@@ -6170,7 +6186,9 @@ def run_desktop_agent(task, max_iterations=15, use_voice=True, voice_model="tiny
                         )
                         act_fp, act_streak = bump_streak(None, 0, action_commands)
                         thought_for = None
-                        follow_cap = max(1, min(int(max_iterations or SAME_LIMIT), 12))
+                        # Shell/file work (build → read error → fix → rebuild) needs more turns than UI clicking.
+                        deep = any(c.get("command") in _VERBOSE_RESULT_CMDS for c in action_commands)
+                        follow_cap = max(1, min(int(max_iterations or SAME_LIMIT), 25 if deep else 12))
                         for step in range(follow_cap):
                             if not agent_running or cancel_requested or get_cancel_flag():
                                 if get_cancel_flag():

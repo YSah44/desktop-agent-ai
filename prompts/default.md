@@ -429,7 +429,7 @@ network_info: (no params) — get WiFi name, signal, speed, public IP
 
 ### Shell & File Commands
 ```
-run_command: {"command": "Get-Process | Select -First 5"} — run PowerShell and get output
+run_command: {"command": "Get-Process | Select -First 5", "timeout": 60, "cwd": "C:\\proj"} — run PowerShell; you get stdout, stderr and the exit code back in the next turn. For build/test/fix work: run → READ the output → fix (write_file / another command) → run again; do not guess, do not stop at the first error. timeout up to 300 s.
 read_file: {"path": "C:\\Users\\me\\notes.txt"} — read file contents
 write_file: {"path": "C:\\Users\\me\\notes.txt", "content": "hello", "append": false} — write/create file
 list_files: {"path": "C:\\Users\\me\\Desktop"} — list directory contents
