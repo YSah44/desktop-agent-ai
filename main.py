@@ -50,7 +50,8 @@ def _enable_dpi_awareness():
 
 _enable_dpi_awareness()
 
-_APP_USER_MODEL_ID = "Aemyos.DesktopAgent"
+_CHANNEL = (os.environ.get("DAVI_CHANNEL") or "").strip().lower()
+_APP_USER_MODEL_ID = "Aemyos.DesktopAgent" + (f".{_CHANNEL}" if _CHANNEL else "")
 _ICON_HANDLES = []
 
 
@@ -127,7 +128,7 @@ def _desktop_work_area():
     return 0, 0, 1920, 1080
 
 
-_INSTANCE_MUTEX_NAME = "Local\\DAVI_DesktopAgent"
+_INSTANCE_MUTEX_NAME = "Local\\DAVI_DesktopAgent" + (f"_{_CHANNEL}" if _CHANNEL else "")
 _PID_PATH = _data_path("davi.pid")
 _instance_mutex = None
 _pid_lock_file = None
@@ -989,6 +990,30 @@ class StatusOverlay:
         self.trans_text = self._make_bubble(you_inner, self.ACCENT, pady=(8, 0), lines=3)
         self._you_body = self.trans_text.master.master
         self._init_placeholder(self.trans_text, "_trans_ph", _t("you_hint"))
+        # Typed commands: same path as speech, also works with the mic muted.
+        cmd_row = tk.Frame(you_inner, bg=self.CARD)
+        cmd_row.pack(fill=tk.X, pady=(6, 0))
+        self._cmd_row = cmd_row
+        self.cmd_var = tk.StringVar()
+        self.cmd_entry = tk.Entry(
+            cmd_row, textvariable=self.cmd_var, font=("Segoe UI", 9), bg=self.BG3, fg=self.DIM,
+            insertbackground=self.TEXT, bd=0, highlightthickness=1,
+            highlightbackground=self.BORDER, highlightcolor=self.ACCENT,
+        )
+        self.cmd_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, ipady=5, padx=(0, 6))
+        self._cmd_ph = True
+        self.cmd_var.set(_t("type_hint"))
+        self.cmd_entry.bind("<FocusIn>", self._cmd_focus_in)
+        self.cmd_entry.bind("<FocusOut>", self._cmd_focus_out)
+        self.cmd_entry.bind("<Return>", self._submit_typed)
+        self.cmd_entry.bind("<Escape>", lambda e: self.root.focus_set())
+        self._cmd_send = tk.Button(
+            cmd_row, text="➤", fg=getattr(self, "ON_FG", "#ffffff"), bg=self.ACCENT,
+            font=("Segoe UI", 9, "bold"), bd=0, padx=10, pady=3, cursor="hand2",
+            activebackground=self.ACCENT2, activeforeground="#ffffff", command=self._submit_typed,
+        )
+        self._cmd_send.pack(side=tk.LEFT)
+        self._bind_hover(self._cmd_send, self.ACCENT, "#ffffff", self.ACCENT2, "#ffffff")
         self._you_hdr = you_hdr
         for w in (you_hdr, self._lbl_you, self._you_chevron):
             w.bind("<Button-1>", lambda e: self._toggle_chat_collapsed())
@@ -3401,6 +3426,37 @@ class StatusOverlay:
     def _toggle_compact(self):
         self._apply_compact(not getattr(self, "_compact", False))
 
+    def _cmd_focus_in(self, _e=None):
+        if getattr(self, "_cmd_ph", False):
+            self._cmd_ph = False
+            self.cmd_var.set("")
+            self.cmd_entry.config(fg=self.TEXT)
+
+    def _cmd_focus_out(self, _e=None):
+        if not self.cmd_var.get().strip():
+            from services.i18n import t as _t
+            self._cmd_ph = True
+            self.cmd_var.set(_t("type_hint"))
+            self.cmd_entry.config(fg=self.DIM)
+
+    def _submit_typed(self, _e=None):
+        """Typed command → same queue the voice loop drains (voice_backlog)."""
+        if getattr(self, "_cmd_ph", False):
+            return "break"
+        text = self.cmd_var.get().strip()
+        if not text:
+            return "break"
+        self.cmd_var.set("")
+        voice_backlog.append(text)
+        self._set_bubble(self.trans_text, "_trans_ph", text)
+        try:
+            from services.tts import stop_speaking
+            stop_speaking()
+        except Exception:
+            pass
+        print(f"[TYPED] {text}")
+        return "break"
+
     def _face_stop(self):
         """Stop button: silence her now and drop whatever task is running."""
         try:
@@ -5652,12 +5708,13 @@ def run_desktop_agent(task, max_iterations=15, use_voice=True, voice_model="tiny
             try:
                 from services.busy_audio import refresh_busy, hold_commands
                 from services.voice_input import ptt_is_down as _ptt, is_mic_muted
-                if is_mic_muted() and not _ptt():
+                # Typed commands bypass the mic gates (muted mic, meeting hold).
+                if is_mic_muted() and not _ptt() and not voice_backlog:
                     update_agent_status(t("mic_off"))
                     time.sleep(0.25)
                     continue
                 busy_reason = refresh_busy()
-                if hold_commands(busy_reason) and not _ptt():
+                if hold_commands(busy_reason) and not _ptt() and not voice_backlog:
                     update_agent_status(t("busy_meeting"))
                     if use_voice and voice_processor:
                         from services.busy_audio import command_through_media

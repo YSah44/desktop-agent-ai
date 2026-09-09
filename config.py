@@ -116,7 +116,9 @@ LANGUAGE = os.environ.get('DAVI_LANGUAGE', 'en')
 THEME = os.environ.get('DAVI_THEME', 'dark')
 VOICE_GENDER = os.environ.get('DAVI_VOICE_GENDER', 'female')
 SYSTEM_PROMPT = 'default'
-DAVI_VERSION = "1.8"
+DAVI_VERSION = "1.9-dev"
+CHANNEL = (os.environ.get('DAVI_CHANNEL') or '').strip().lower()
+BRIDGE_PORT = int(os.environ.get('DAVI_BRIDGE_PORT', '8769'))
 
 # Which display the agent looks at: cursor (monitor under the mouse),
 # primary, virtual (all screens stitched), or a 1-based monitor index.

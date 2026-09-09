@@ -13,7 +13,7 @@ except ImportError:
     WS_AVAILABLE = False
     print("[BRIDGE] websockets not installed. Run: pip install websockets")
 
-PORT = 8769
+PORT = int(os.environ.get("DAVI_BRIDGE_PORT", "8769"))
 BRIDGE_VERSION = "1.3.1"
 _bridge = None
 
