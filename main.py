@@ -345,6 +345,7 @@ task_queue = []
 task_queue_lock = threading.Lock()
 cancel_requested = False
 voice_backlog = []
+_reply_sinks = []
 _task_id_seq = 0
 
 
@@ -582,6 +583,26 @@ def update_agent_response(text, speak=True):
         except Exception:
             pass
         tts_speak(text)
+    if text:
+        for sink in list(_reply_sinks):
+            try:
+                sink(text)
+            except Exception:
+                pass
+
+
+def enqueue_remote_command(text):
+    """A command that arrived by text (Telegram etc.): same queue as speech."""
+    text = (text or "").strip()
+    if not text:
+        return
+    voice_backlog.append(text)
+    win = status_window
+    if win is not None:
+        try:
+            win.root.after_idle(win._set_bubble, win.trans_text, "_trans_ph", text)
+        except Exception:
+            pass
 
 
 def _wait_until_tts_idle(tail=0.0):
@@ -6425,6 +6446,18 @@ if __name__ == "__main__":
         print(f"[MAIN] Smart features loaded (clipboard, sysinfo, reminders={n}, desktop)")
     except Exception as e:
         print(f"[MAIN] Smart features error: {e}")
+
+    try:
+        _tg_token = (os.environ.get("DAVI_TELEGRAM_TOKEN") or "").strip()
+        if _tg_token:
+            from services import telegram_bot
+            _code = telegram_bot.start(
+                _tg_token, os.environ.get("DAVI_TELEGRAM_CHAT_ID", ""), enqueue=enqueue_remote_command,
+            )
+            _reply_sinks.append(telegram_bot.notify)
+            print("[TG] bot started (paired)" if not _code else f"[TG] bot started — pairing code: {_code}")
+    except Exception as e:
+        print(f"[TG] start failed: {e}")
 
     try:
         from services.safety import set_refuse_hook
