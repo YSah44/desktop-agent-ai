@@ -52,12 +52,12 @@ Without the Chrome extension it still uses the keyboard and the screen.
 SHA256 of `Aemyos-Setup-1.8.exe`:
 
 ```
-7553b6cae94ebd5b4d198122ec0ddc72fa52c2e771ad916e2f7c04e7c709638a
+324987202fa9b8e85cf5735c67974bfc5b3c22937d8bf6d19169e656db96f2c4
 ```
 
 Check it in PowerShell: `Get-FileHash Aemyos-Setup-1.8.exe -Algorithm SHA256` — all releases: [releases](https://github.com/YSah44/desktop-agent-ai/releases).
 
-Unsigned build: SmartScreen may say “Unknown publisher” — choose **More info → Run anyway**.
+The installer, `Aemyos.exe` and the uninstaller are code-signed with a Microsoft-verified certificate (Azure Trusted Signing, publisher *david sahbaz*). Right-click the file → Properties → Digital Signatures to check.
 
 Build it yourself: `build.bat` (PyInstaller + Inno Setup) → `dist\Aemyos-Setup-1.8.exe`.
 

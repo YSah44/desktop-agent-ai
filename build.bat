@@ -38,7 +38,10 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
-call sign.bat "dist\Aemyos-Setup-1.8.exe"
+:: Inno already signs Setup.exe through /Saemyos when signing.json exists; only sign here if it did not.
+set "SIGNTOOL="
+for /d %%d in ("build-tools\sdk\bin\10.*") do if exist "%%~d\x64\signtool.exe" set "SIGNTOOL=%%~d\x64\signtool.exe"
+if defined SIGNTOOL "%SIGNTOOL%" verify /pa /q "dist\Aemyos-Setup-1.8.exe" >nul 2>&1 || call sign.bat "dist\Aemyos-Setup-1.8.exe"
 if errorlevel 1 (pause & exit /b 1)
 echo  [OK] dist\Aemyos-Setup-1.8.exe
 pause

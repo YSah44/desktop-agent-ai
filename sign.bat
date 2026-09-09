@@ -4,6 +4,8 @@
 :: one-time "az login". Without signing.json the build stays unsigned.
 setlocal
 cd /d "%~dp0"
+:: The signing dlib finds the token through "az"; make sure the real CLI wins in PATH.
+set "PATH=%ProgramFiles%\Microsoft SDKs\Azure\CLI2\wbin;%PATH%"
 if "%~1"=="" (echo [SIGN] usage: sign.bat ^<file^> & exit /b 1)
 if not exist "signing.json" (echo [SIGN] signing.json missing - leaving "%~nx1" unsigned & exit /b 0)
 
