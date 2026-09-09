@@ -1903,7 +1903,7 @@ class StatusOverlay:
         btn.pack(fill=tk.X, padx=8, pady=(4, 0))
         return title, rows, btn
 
-    def _fill_rows(self, container, entries, empty_text, on_delete=None):
+    def _fill_rows(self, container, entries, empty_text, on_delete=None, on_run=None):
         for w in container.winfo_children():
             w.destroy()
         if not entries:
@@ -1920,6 +1920,10 @@ class StatusOverlay:
                 tk.Button(row, text="×", fg=self.RED, bg=self.BG3, font=("Segoe UI", 8), bd=0,
                           padx=6, pady=0, cursor="hand2", activebackground=self.BG,
                           command=lambda k=key: on_delete(k)).pack(side=tk.RIGHT)
+            if on_run is not None:
+                tk.Button(row, text="▶", fg=self.GREEN, bg=self.BG3, font=("Segoe UI", 8), bd=0,
+                          padx=6, pady=0, cursor="hand2", activebackground=self.BG,
+                          command=lambda k=key: on_run(k)).pack(side=tk.RIGHT)
 
     def _build_notes_setting(self, parent):
         self._lbl_notes, self._notes_rows, self._notes_clear_btn = self._stg_list_section(
@@ -1948,9 +1952,63 @@ class StatusOverlay:
         self._position_settings_window()
 
     def _build_routines_setting(self, parent):
+        from services.i18n import t as _t
         self._lbl_routines, self._routines_rows, self._routines_clear_btn = self._stg_list_section(
             parent, "routines_title", "notes_clear", self._clear_routines)
         self.refresh_routines()
+        # New-routine form: a name and one step per line; saved routines run by voice
+        # ("run my morning routine"), by typing, or with the ▶ button.
+        form = tk.Frame(parent, bg=self.CARD)
+        form.pack(fill=tk.X, padx=8, pady=(8, 0))
+        self._routine_name_var = tk.StringVar()
+        self._routine_name = tk.Entry(
+            form, textvariable=self._routine_name_var, font=("Segoe UI", 8), bg=self.BG3, fg=self.TEXT,
+            insertbackground=self.TEXT, bd=0, highlightthickness=1, highlightbackground=self.BORDER,
+            highlightcolor=self.ACCENT,
+        )
+        self._routine_name.pack(fill=tk.X, ipady=3)
+        self._routine_name_hint = tk.Label(form, text=_t("routine_name_hint"), fg=self.DIM, bg=self.CARD,
+                                           font=("Segoe UI", 7), anchor="w")
+        self._routine_name_hint.pack(fill=tk.X)
+        self._routine_steps = tk.Text(
+            form, height=3, font=("Segoe UI", 8), bg=self.BG3, fg=self.TEXT, insertbackground=self.TEXT,
+            bd=0, highlightthickness=1, highlightbackground=self.BORDER, highlightcolor=self.ACCENT,
+            wrap=tk.WORD, padx=4, pady=3,
+        )
+        self._routine_steps.pack(fill=tk.X, pady=(4, 0))
+        self._routine_steps_hint = tk.Label(form, text=_t("routine_steps_hint"), fg=self.DIM, bg=self.CARD,
+                                            font=("Segoe UI", 7), anchor="w")
+        self._routine_steps_hint.pack(fill=tk.X)
+        self._routine_save_btn = tk.Button(
+            form, text=_t("routine_save"), fg=getattr(self, "ON_FG", "#ffffff"), bg=self.ACCENT,
+            font=("Segoe UI", 7, "bold"), bd=0, padx=8, pady=4, cursor="hand2",
+            activebackground=self.ACCENT2, activeforeground="#ffffff", command=self._save_routine_from_form,
+        )
+        self._routine_save_btn.pack(fill=tk.X, pady=(4, 0))
+        self._bind_settings_wheel(self._routine_steps)
+
+    def _save_routine_from_form(self):
+        from services.i18n import t as _t
+        from services.personal import save_routine
+        name = self._routine_name_var.get().strip()
+        raw = self._routine_steps.get("1.0", tk.END)
+        steps = [s.strip(" -•\t") for s in raw.replace(";", "\n").splitlines() if s.strip(" -•\t")]
+        if not name or not steps:
+            self._stg_flash(_t("routine_need_both"), color=self.RED)
+            return
+        save_routine(name, steps)
+        self._routine_name_var.set("")
+        self._routine_steps.delete("1.0", tk.END)
+        self.refresh_routines()
+        self._position_settings_window()
+        self._stg_flash(_t("routine_saved"))
+
+    def _run_routine(self, name):
+        enqueue_remote_command(f"run routine {name}")
+        try:
+            self._close_settings()
+        except Exception:
+            pass
 
     def refresh_routines(self):
         from services.i18n import t as _t
@@ -1959,7 +2017,8 @@ class StatusOverlay:
             entries = [(f"{r['name']} — {len(r['steps'])}", r["name"]) for r in list_routines()]
         except Exception:
             entries = []
-        self._fill_rows(self._routines_rows, entries, _t("routines_empty"), self._forget_routine)
+        self._fill_rows(self._routines_rows, entries, _t("routines_empty"), self._forget_routine,
+                        on_run=self._run_routine)
 
     def _forget_routine(self, name):
         from services.personal import delete_routine
@@ -6023,7 +6082,9 @@ def run_desktop_agent(task, max_iterations=15, use_voice=True, voice_model="tiny
                                         print(f"[FAST] site {site}")
                                         fast_handled = True
                                 if not fast_handled:
-                                    app_name = match_fast_open_app(voice_text)
+                                    # "run routine X" is a routine, not an app called "routine X".
+                                    from services.personal import match_run_routine as _is_routine
+                                    app_name = None if _is_routine(voice_text) else match_fast_open_app(voice_text)
                                     if app_name:
                                         r = open_app_via_start(app_name)
                                         msg = f"{t('app_opened')} · {app_name}"
