@@ -6056,6 +6056,17 @@ def run_desktop_agent(task, max_iterations=15, use_voice=True, voice_model="tiny
                                     print(f"[FAST] {action} {msg}")
                                     fast_handled = True
                                 if not fast_handled:
+                                    from services.messaging import parse_request as _parse_chat, send_message as _send_chat
+                                    chat = _parse_chat(voice_text)
+                                    if chat:
+                                        r = _send_chat(chat["app"], chat["who"], chat["msg"], send=True)
+                                        msg = f"{t('message_sent')} · {chat['who']}" if r.get("success") else (r.get("message") or t("message_failed"))
+                                        add_task(voice_text)
+                                        complete_current_task()
+                                        update_agent_response(msg, speak=True)
+                                        print(f"[FAST] send_message {chat['app']} -> {chat['who']}: {r.get('message')}")
+                                        fast_handled = True
+                                if not fast_handled:
                                     from services.file_index import parse_request as _parse_file_req, open_recent as _open_recent
                                     req = _parse_file_req(voice_text)
                                     if req:

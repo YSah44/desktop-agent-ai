@@ -456,6 +456,7 @@ open_url: {"url": "https://google.com"} — open URL in default browser
 open_app: {"name": "Discord"} — Win+S Start search, then Enter. Resolves against Favorite apps and prepends the name to favorite_apps (max 12). Prefer this over a Win+S / type / Enter chain.
 search_files: {"query": "invoice", "kind": "pdf", "days": 14, "folder": "Downloads"} — local index of the user's folders; returns matching files (name, full path, age). kind ∈ pdf, doc, sheet, slides, image, video, audio, zip, exe, code; days/folder/query all optional. Use this FIRST for "open the file I downloaded…", "find my …", then open_path with the returned path.
 open_path: {"path": "C:\\Users\\me\\Downloads\\invoice.pdf"} — open a file or folder with its default app
+send_message: {"app": "whatsapp", "to": "Ahmet", "text": "I'm running late", "send": true} — drives the installed WhatsApp / Telegram desktop app: finds the contact, types, sends. Use it for "tell X on WhatsApp…", "WhatsApp'ta X'e yaz…". Confirm the contact name back to the user in [Response]. send:false only types without sending.
 find_files: {"query": "invoice.pdf"} — Explorer search window in the user profile (only when the user wants to browse)
 find_files: {"query": "notes", "scope": "start"} — Start-menu search (then press Enter if needed)
 find_files: {"query": "report", "path": "C:\\Users\\me\\Documents"}

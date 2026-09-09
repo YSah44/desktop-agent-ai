@@ -123,6 +123,16 @@ def _open_path(params, _command):
     return open_path(params.get("path") or params.get("file") or "")
 
 
+def _send_message(params, _command):
+    from services.messaging import send_message
+    return send_message(
+        params.get("app") or "whatsapp",
+        params.get("to") or params.get("contact") or params.get("who") or "",
+        params.get("text") or params.get("message") or "",
+        send=params.get("send", True) not in (False, "false", "no", 0),
+    )
+
+
 def _manage_window(params, _command):
     action = params.get("action") or ""
     title = params.get("title") or params.get("name")
@@ -182,6 +192,7 @@ _HANDLERS = {
     "find_files": _find_files,
     "search_files": _search_files,
     "open_path": _open_path,
+    "send_message": _send_message,
     "manage_window": _manage_window,
     "snap_window": _snap_window,
     "delete_file": _delete_file,
