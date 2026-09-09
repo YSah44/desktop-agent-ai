@@ -1,0 +1,32 @@
+# Core dependencies
+pyautogui
+Pillow
+# headless: webcam + face detection only, no GUI libs (70 MB smaller exe)
+opencv-python-headless
+numpy
+screeninfo
+requests
+pyperclip
+pynput
+
+# Voice: microphone capture. Speech-to-text is Groq or OpenRouter (cloud).
+sounddevice
+# Spoken replies: Microsoft Edge TTS, played through pygame.
+edge-tts
+pygame
+
+# Browser bridge
+websockets
+
+# Windows UI Automation (click_ui / find_control)
+# comtypes talks to UIAutomationCore; pywinauto is the fallback if UIA misses.
+comtypes
+pywinauto>=0.6.8,<0.7
+
+# Screen OCR (read_screen / find_text) via the OCR engine built into Windows 10+.
+# Optional: without it DAVI falls back to the vision model.
+winsdk
+
+# Optional
+python-dotenv
+pystray

@@ -1,0 +1,23 @@
+{
+  "user": {
+    "name": "",
+    "role": "",
+    "location": ""
+  },
+  "preferences": {
+    "language": "en",
+    "never_close_user_windows": true,
+    "favorite_browser": "Chrome",
+    "favorite_apps": []
+  },
+  "learned": [],
+  "notes": [],
+  "routines": [],
+  "history": [],
+  "reminders": [],
+  "tasks": [],
+  "last_task": null,
+  "life": {
+    "facts": []
+  }
+}

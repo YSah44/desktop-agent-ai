@@ -1,0 +1,5 @@
+{
+  "extName": { "message": "Aemyos - Masaüstü ajan köprüsü" },
+  "extDesc": { "message": "Aemyos için yerel tarayıcı köprüsü. Sayfaları oku, öğelere tıkla, sekmeleri yönet; kendi Chrome’unu masaüstü ajandan kontrol et." },
+  "extTitle": { "message": "Aemyos Köprü" }
+}

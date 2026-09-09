@@ -1,0 +1,5 @@
+{
+  "extName": { "message": "Aemyos - Desktop Agent Bridge" },
+  "extDesc": { "message": "Local browser bridge for Aemyos. Read pages, click elements, manage tabs, and control your own Chrome from the desktop agent." },
+  "extTitle": { "message": "Aemyos Bridge" }
+}

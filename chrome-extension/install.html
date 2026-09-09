@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aemyos Extension Setup</title>
+<style>
+  :root {
+    --bg: #070b12;
+    --panel: #101826;
+    --line: #223049;
+    --text: #eef3fb;
+    --muted: #8b97ab;
+    --accent: #7c93ff;
+    --ok: #34d399;
+    --bad: #f87171;
+    --warn: #fbbf24;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background:
+      radial-gradient(900px 420px at 10% -10%, #1a2450 0%, transparent 55%),
+      radial-gradient(700px 380px at 110% 0%, #2a1848 0%, transparent 50%),
+      var(--bg);
+    color: var(--text);
+    padding: 36px 20px 48px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .brand { display: flex; gap: 14px; align-items: center; }
+  .logo {
+    width: 56px; height: 56px; border-radius: 16px; overflow: hidden;
+    background: linear-gradient(135deg, #6c8cff, #a78bfa);
+    box-shadow: 0 8px 24px #6c8cff33;
+  }
+  .logo img { width: 100%; height: 100%; display: block; }
+  h1 { font-size: 26px; letter-spacing: -0.3px; }
+  .sub { color: var(--muted); margin-top: 4px; font-size: 14px; line-height: 1.45; }
+  .lang {
+    display: flex; background: #0c1220; border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+  }
+  .lang button {
+    border: 0; background: transparent; color: var(--muted);
+    padding: 8px 12px; font-weight: 700; cursor: pointer;
+  }
+  .lang button.active { background: #1c2744; color: var(--text); }
+  .status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  .stat {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 16px;
+  }
+  .stat .k { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); font-weight: 700; }
+  .stat .v { margin-top: 8px; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+  .on { color: var(--ok); }
+  .off { color: var(--bad); }
+  .wait { color: var(--warn); }
+  .step {
+    display: flex; gap: 16px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 12px;
+  }
+  .num {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #1c2744; color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; flex-shrink: 0;
+  }
+  .step h3 { font-size: 16px; margin-bottom: 6px; }
+  .step p { color: var(--muted); font-size: 14px; line-height: 1.55; }
+  kbd {
+    background: #0c1220; border: 1px solid var(--line); border-radius: 5px;
+    padding: 1px 6px; font-size: 12px; font-family: Consolas, monospace; color: #c7d2fe;
+  }
+  .row-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .btn {
+    border: 0; border-radius: 9px; padding: 9px 14px; font-weight: 700; cursor: pointer;
+    background: linear-gradient(135deg, #6c8cff, #8b6cf0); color: white; font-size: 13px;
+  }
+  .btn.ghost { background: #151c2c; color: var(--accent); border: 1px solid var(--line); }
+  .path {
+    margin-top: 10px; background: #0a101c; border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 12px; font-family: Consolas, monospace; font-size: 12px; color: var(--ok);
+    word-break: break-all; cursor: pointer; position: relative;
+  }
+  .path small { float: right; color: var(--muted); font-family: "Segoe UI", sans-serif; }
+  .note {
+    margin-top: 18px; padding: 16px 18px; border-radius: 14px;
+    background: #10261c; border: 1px solid #1f6b45;
+  }
+  .note h3 { color: var(--ok); margin-bottom: 6px; }
+  .note p { color: #b7c9be; font-size: 14px; line-height: 1.5; }
+  .hint { margin-top: 12px; color: var(--muted); font-size: 12px; text-align: center; }
+  @media (max-width: 640px) {
+    .status-grid, .top { grid-template-columns: 1fr; display: block; }
+    .lang { margin-top: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <div class="logo"><img src="icons/icon128.png" alt="Aemyos"></div>
+      <div>
+        <h1>Aemyos Browser Extension</h1>
+        <p class="sub" data-i18n="subtitle">Load this unpacked folder in Chrome, then Aemyos can read and control your own tabs.</p>
+      </div>
+    </div>
+    <div class="lang" id="lang-switch"></div>
+  </div>
+
+  <div class="status-grid">
+    <div class="stat">
+      <div class="k" data-i18n="agent">Aemyos agent</div>
+      <div class="v wait" id="agent-status"><span class="dot"></span><span id="agent-text">Checking…</span></div>
+    </div>
+    <div class="stat">
+      <div class="k" data-i18n="bridge">Extension bridge</div>
+      <div class="v wait" id="ext-status"><span class="dot"></span><span id="ext-text">Waiting…</span></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div>
+      <h3 data-i18n="s1t">Open Chrome Extensions</h3>
+      <p data-i18n="s1p">In the address bar open <kbd>chrome://extensions</kbd>. Chrome blocks that link from this page, so copy it or use the installer script.</p>
+      <div class="row-btns">
+        <button class="btn" id="copy-ext-url" type="button" data-i18n="copyExt">Copy chrome://extensions</button>
+        <button class="btn ghost" id="copy-path-top" type="button" data-i18n="copyFolder">Copy folder path</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">2</div>
+    <div>
+      <h3 data-i18n="s2t">Enable Developer mode</h3>
+      <p data-i18n="s2p">Turn on the <strong>Developer mode</strong> switch at the top-right of the extensions page. / Sağ üstteki <strong>Geliştirici modu</strong> anahtarını açın.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">3</div>
+    <div>
+      <h3 data-i18n="s3t">Load unpacked → this folder</h3>
+      <p data-i18n="s3p">Click <strong>Load unpacked</strong>, paste the path below, and select this folder. / <strong>Paketlenmemiş öğe yükle</strong> deyip bu klasörü seçin.</p>
+      <div class="path" id="extPath" title="Click to copy"><small data-i18n="clickCopy">Click to copy</small><span id="extPathText"></span></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">4</div>
+    <div>
+      <h3 data-i18n="s4t">Confirm the connection</h3>
+      <p data-i18n="s4p">Start Aemyos first. Pin the Aemyos icon. The toolbar badge shows <strong>ON</strong> when the agent is reachable. If it says Offline, open the popup and press Reconnect. Then reload this page.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <h3 data-i18n="doneT">After install</h3>
+    <p data-i18n="doneP">Reload the extension on chrome://extensions after updates. Restart Aemyos if the live status here stays stuck. No extra login is required — this is a local WebSocket on your PC.</p>
+  </div>
+  <p class="hint" data-i18n="hint">v1.3.1 · ws://localhost:8769 · local only</p>
+</div>
+
+<script src="i18n.js"></script>
+<script>
+const t = (key) => AemyosI18n.t(key);
+
+function applyLang() {
+  AemyosI18n.apply();
+  AemyosI18n.paintLangButtons(document.getElementById('lang-switch'));
+  refreshLabels();
+}
+
+function detectPath() {
+  const loc = window.location;
+  if (loc.protocol === 'file:') {
+    const path = decodeURIComponent(loc.pathname);
+    return path.substring(0, path.lastIndexOf('/')).replace(/^\/([A-Z]:)/, '$1').replace(/\//g, '\\');
+  }
+  return 'C:\\Users\\...\\Aemyos\\chrome-extension';
+}
+
+const extPath = detectPath();
+document.getElementById('extPathText').textContent = ' ' + extPath;
+const pathEl = document.getElementById('extPath');
+
+let lastAgent = 'wait';
+let lastExt = 'wait';
+
+function setPill(id, textId, state, text) {
+  const wrap = document.getElementById(id);
+  wrap.className = 'v ' + state;
+  document.getElementById(textId).textContent = text;
+}
+
+function refreshLabels() {
+  if (lastAgent === 'on') setPill('agent-status', 'agent-text', 'on', t('agentOn'));
+  else if (lastAgent === 'off') setPill('agent-status', 'agent-text', 'off', t('agentOff'));
+  else setPill('agent-status', 'agent-text', 'wait', t('checking'));
+  if (lastExt === 'here') setPill('ext-status', 'ext-text', 'on', t('extHere'));
+  else if (lastExt === 'on') setPill('ext-status', 'ext-text', 'on', t('extOn'));
+  else if (lastExt === 'off') setPill('ext-status', 'ext-text', 'off', t('extOff'));
+  else setPill('ext-status', 'ext-text', 'wait', t('checking'));
+}
+
+async function copyText(text, btn) {
+  try {
+    await navigator.clipboard.writeText(text);
+    if (btn) {
+      const key = btn.getAttribute('data-i18n');
+      btn.textContent = t('copied');
+      setTimeout(() => { btn.textContent = key ? t(key) : t('copied'); }, 1400);
+    }
+  } catch (e) {}
+}
+
+document.getElementById('copy-ext-url').onclick = (e) => copyText('chrome://extensions', e.currentTarget);
+document.getElementById('copy-path-top').onclick = (e) => copyText(extPath, e.currentTarget);
+pathEl.onclick = () => copyText(extPath);
+
+if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getManifest) {
+  lastExt = 'here';
+  document.getElementById('extPathText').textContent = ' ' + t('loadedHint');
+}
+
+function connectStatus() {
+  let socket;
+  let opened = false;
+  let keepOpen = false;
+  try {
+    socket = new WebSocket('ws://localhost:8769');
+  } catch (e) {
+    lastAgent = 'off';
+    if (lastExt !== 'here') lastExt = 'off';
+    refreshLabels();
+    setTimeout(connectStatus, 3000);
+    return;
+  }
+
+  const stealGuard = setTimeout(() => {
+    if (!opened) {
+      lastAgent = 'off';
+      if (lastExt !== 'here') lastExt = 'off';
+      refreshLabels();
+      try { socket.close(); } catch (e) {}
+      setTimeout(connectStatus, 3000);
+      return;
+    }
+    lastAgent = 'on';
+    if (lastExt !== 'here') lastExt = 'off';
+    refreshLabels();
+    try { socket.close(); } catch (e) {}
+    setTimeout(connectStatus, 4000);
+  }, 800);
+
+  socket.onopen = () => {
+    opened = true;
+    lastAgent = 'on';
+    try { socket.send(JSON.stringify({ type: 'hello', role: 'status' })); } catch (e) {}
+    refreshLabels();
+  };
+
+  socket.onmessage = (ev) => {
+    clearTimeout(stealGuard);
+    keepOpen = true;
+    try {
+      const data = JSON.parse(ev.data);
+      if (data.language) {
+        AemyosI18n.followAgent(data.language);
+        AemyosI18n.apply();
+        AemyosI18n.paintLangButtons(document.getElementById('lang-switch'));
+      }
+      if (data.agent) lastAgent = 'on';
+      if (lastExt !== 'here') lastExt = data.extension_connected ? 'on' : 'off';
+      refreshLabels();
+    } catch (e) {}
+  };
+
+  socket.onclose = () => {
+    clearTimeout(stealGuard);
+    if (!keepOpen) return;
+    lastAgent = 'off';
+    if (lastExt !== 'here') lastExt = 'off';
+    refreshLabels();
+    setTimeout(connectStatus, 3000);
+  };
+
+  socket.onerror = () => {
+    try { socket.close(); } catch (e) {}
+  };
+}
+
+AemyosI18n.loadSaved();
+document.getElementById('lang-switch').onLangChange = applyLang;
+applyLang();
+connectStatus();
+</script>
+</body>
+</html>

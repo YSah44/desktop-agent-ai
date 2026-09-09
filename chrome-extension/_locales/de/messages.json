@@ -1,0 +1,5 @@
+{
+  "extName": { "message": "Aemyos - Desktop-Agent-Brücke" },
+  "extDesc": { "message": "Lokale Browserbrücke für Aemyos. Seiten lesen, klicken, Tabs verwalten und das eigene Chrome vom Desktop-Agenten steuern." },
+  "extTitle": { "message": "Aemyos-Brücke" }
+}

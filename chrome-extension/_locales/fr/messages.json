@@ -1,0 +1,5 @@
+{
+  "extName": { "message": "Aemyos - Pont de l’agent bureau" },
+  "extDesc": { "message": "Pont navigateur local pour Aemyos. Lire les pages, cliquer, gérer les onglets et contrôler votre Chrome depuis l’agent bureau." },
+  "extTitle": { "message": "Pont Aemyos" }
+}

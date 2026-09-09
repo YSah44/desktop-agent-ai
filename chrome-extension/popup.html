@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <style>
+    :root {
+      --bg: #0a0e14;
+      --card: #121826;
+      --line: #1e2a3a;
+      --text: #e8eef7;
+      --muted: #7b8798;
+      --accent: #7c93ff;
+      --ok: #34d399;
+      --bad: #f87171;
+      --warn: #fbbf24;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 340px;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 14px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .logo {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #6c8cff, #a78bfa);
+      flex-shrink: 0;
+    }
+    .logo img { width: 100%; height: 100%; display: block; }
+    .title { font-size: 15px; font-weight: 650; letter-spacing: 0.2px; }
+    .version { font-size: 10px; color: var(--muted); margin-top: 1px; }
+    .badge {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 650;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #1a2230;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .badge.on { color: var(--ok); background: #10261c; }
+    .badge.off { color: var(--bad); background: #2a1518; }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 6px currentColor;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      font-size: 11px;
+    }
+    .label { color: var(--muted); }
+    .value { font-weight: 550; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .error {
+      color: var(--bad);
+      font-size: 10px;
+      line-height: 1.4;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid var(--line);
+      word-break: break-word;
+    }
+    .section { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+    .log-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 10px;
+      padding: 3px 0;
+      border-bottom: 1px solid #182232;
+    }
+    .log-item:last-child { border-bottom: none; }
+    .log-cmd { color: var(--accent); }
+    .log-time { color: var(--muted); }
+    .ok { color: var(--ok); }
+    .fail { color: var(--bad); }
+    .empty { font-size: 10px; color: var(--muted); text-align: center; padding: 6px; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .btn {
+      border: 1px solid var(--line);
+      background: #151c28;
+      color: var(--accent);
+      border-radius: 8px;
+      padding: 8px 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn:hover { background: #1c2740; }
+    .btn:disabled { opacity: 0.55; cursor: default; }
+    .btn.wide { grid-column: 1 / -1; }
+    .foot { margin-top: 8px; font-size: 9px; color: var(--muted); text-align: center; }
+    .lang {
+      display: flex; margin-bottom: 10px; background: #0c1220;
+      border: 1px solid var(--line); border-radius: 8px; overflow: hidden;
+    }
+    .lang button {
+      flex: 1; border: 0; background: transparent; color: var(--muted);
+      padding: 6px 0; font-size: 10px; font-weight: 700; cursor: pointer;
+    }
+    .lang button.active { background: #1c2744; color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo"><img src="icons/icon48.png" alt=""></div>
+    <div>
+      <div class="title" data-i18n="title">Aemyos Bridge</div>
+      <div class="version" id="version">v1.3.1</div>
+    </div>
+    <div class="badge off" id="badge"><span class="dot"></span><span id="badge-text">Offline</span></div>
+  </div>
+  <div class="lang" id="lang-switch"></div>
+
+  <div class="card">
+    <div class="row"><span class="label" data-i18n="agent">Aemyos agent</span><span class="value" id="ws-status">Checking…</span></div>
+    <div class="row"><span class="label" data-i18n="tab">Tab</span><span class="value" id="tab-info">—</span></div>
+    <div class="row"><span class="label" data-i18n="url">URL</span><span class="value" id="tab-url">—</span></div>
+    <div class="error" id="last-error" hidden></div>
+  </div>
+
+  <div class="card">
+    <div class="section" data-i18n="recent">Recent commands</div>
+    <div id="cmd-log"><div class="empty" data-i18n="no_cmds">No commands yet</div></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" id="reconnect-btn" data-i18n="reconnect">Reconnect</button>
+    <button class="btn" id="test-btn" data-i18n="test">Test page</button>
+    <button class="btn" id="copy-url-btn" data-i18n="copy_url">Copy tab URL</button>
+    <button class="btn" id="reload-tab-btn" data-i18n="reload">Reload tab</button>
+    <button class="btn wide" id="guide-btn" data-i18n="guide">Open install guide</button>
+  </div>
+  <div class="foot" data-i18n="foot">Local only · ws://localhost:8769</div>
+  <script src="i18n.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

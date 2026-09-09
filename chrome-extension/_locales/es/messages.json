@@ -1,0 +1,5 @@
+{
+  "extName": { "message": "Aemyos - Puente del agente de escritorio" },
+  "extDesc": { "message": "Puente local del navegador para Aemyos. Lee páginas, haz clic, gestiona pestañas y controla tu propio Chrome desde el agente de escritorio." },
+  "extTitle": { "message": "Puente Aemyos" }
+}
