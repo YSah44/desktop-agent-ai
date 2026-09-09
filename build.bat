@@ -19,6 +19,8 @@ if errorlevel 1 (
     exit /b 1
 )
 echo  [OK] dist\Aemyos\Aemyos.exe
+call sign.bat "dist\Aemyos\Aemyos.exe"
+if errorlevel 1 (pause & exit /b 1)
 
 set "ISCC=%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe"
 if not exist "%ISCC%" set "ISCC=%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe"
@@ -30,11 +32,13 @@ if not exist "%ISCC%" (
 )
 
 echo  [..] Inno Setup
-"%ISCC%" /Q installer.iss
+"%ISCC%" /Q "/Saemyos=$q%CD%\sign.bat$q $f" installer.iss
 if errorlevel 1 (
     echo  [ERROR] Inno Setup failed.
     pause
     exit /b 1
 )
+call sign.bat "dist\Aemyos-Setup-1.8.exe"
+if errorlevel 1 (pause & exit /b 1)
 echo  [OK] dist\Aemyos-Setup-1.8.exe
 pause

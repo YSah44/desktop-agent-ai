@@ -33,6 +33,9 @@ ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 CloseApplications=yes
 RestartApplications=no
+; build.bat passes /Saemyos="sign.bat $f"; without signing.json that is a no-op.
+SignTool=aemyos
+SignedUninstaller=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

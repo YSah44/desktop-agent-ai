@@ -54,6 +54,8 @@ MANIFEST
 *.manifest
 *.spec
 !aemyos.spec
+build-tools/
+signing.json
 
 # Installer logs
 pip-log.txt
