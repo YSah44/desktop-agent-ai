@@ -77,14 +77,22 @@ class BrowserBridge:
     async def _serve(self):
         servers = []
         last_err = None
-        for host in ("127.0.0.1", "::1"):
-            try:
-                srv = await websockets.server.serve(self._handler, host, self.port)
-                servers.append(srv)
-                print(f"[BRIDGE] listening on {host}:{self.port}")
-            except OSError as e:
-                last_err = e
-                print(f"[BRIDGE] skip {host}:{self.port} ({e})")
+        # The store extension only knows 8769. Take it when free; if another
+        # Aemyos (e.g. the released build) already holds it, fall back to the
+        # configured port so both can run side by side.
+        candidates = [8769, self.port] if self.port != 8769 else [self.port]
+        for port in candidates:
+            for host in ("127.0.0.1", "::1"):
+                try:
+                    srv = await websockets.server.serve(self._handler, host, port)
+                    servers.append(srv)
+                    print(f"[BRIDGE] listening on {host}:{port}")
+                except OSError as e:
+                    last_err = e
+                    print(f"[BRIDGE] skip {host}:{port} ({e})")
+            if servers:
+                self.port = port
+                break
         if not servers:
             raise last_err or OSError(f"Could not bind WebSocket port {self.port}")
         print(f"[BRIDGE] WebSocket server ready on ws://localhost:{self.port}")
