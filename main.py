@@ -6519,7 +6519,8 @@ def run_desktop_agent(task, max_iterations=15, use_voice=True, voice_model="tiny
                                         add_task(voice_text)
                                         r = _spotify.play(sp["query"], sp["kind"])
                                         if r.get("success"):
-                                            msg = f"{t('spotify_playing')} · {sp['query']}" if not r.get("fallback") else r.get("message")
+                                            _lbl = f"{r.get('title')} · {r.get('artist')}" if r.get("title") and r.get("artist") else (r.get("title") or sp["query"])
+                                            msg = f"{t('spotify_playing')} · {_lbl}" if not r.get("fallback") else r.get("message")
                                         else:
                                             msg = r.get("message")
                                         complete_current_task()

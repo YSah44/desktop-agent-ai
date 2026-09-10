@@ -123,40 +123,77 @@ def search_uri(query, kind="track"):
 
 # ── UIA path ─────────────────────────────────────────────────────
 
-def _click_first_play(hwnd, timeout=10.0):
-    from services.win_uia import find_controls, _invoke
-    end = time.time() + timeout
-    while time.time() < end:
-        try:
-            hits = find_controls(name="Play", control_type="Button", hwnd=hwnd, limit=8)
-        except Exception:
-            hits = []
-        # Prefer the top-result / first track play button; skip the transport "Play" at the bottom.
-        cands = [h for h in hits if (h.get("name") or "").lower().startswith("play") and h.get("y") is not None]
-        cands.sort(key=lambda h: (h.get("y", 0), h.get("x", 0)))
-        for h in cands:
-            if h.get("rect") and h["rect"].get("height", 0) > 80:
-                continue
-            el = h.get("_el")
-            if el is not None and _invoke(el):
-                return h.get("name") or "Play"
-            try:
-                from services.win_uia import _mouse_click_xy
-                _mouse_click_xy(h["x"], h["y"])
-                return h.get("name") or "Play"
-            except Exception:
-                continue
-        time.sleep(0.5)
-    return None
+def _now_playing():
+    """(transport, title, artist) from the Windows media session; title empty = nothing real."""
+    try:
+        from services.busy_audio import _run, _media_session_async
+        return _run(_media_session_async())
+    except Exception:
+        return (None, "", "")
 
 
 def _is_playing():
-    try:
-        from services.busy_audio import _run, _media_session_async
-        transport, _t, _a = _run(_media_session_async())
-        return transport == "playing"
-    except Exception:
-        return False
+    tr, title, _a = _now_playing()
+    return tr == "playing" and bool(title)
+
+
+def _click_first_play(hwnd, kind="track", timeout=10.0):
+    """Press a Play button on Spotify's search page and confirm via the media session.
+
+    Rows are exposed as buttons named "Play <title>" (songs, podcasts) and the
+    top-result card as a bare "Play". Songs first for tracks; the top result first
+    for artist/album/playlist. Each press is verified — the top result can be an
+    audiobook or podcast that shows 'playing' with no title."""
+    from services.win_uia import find_controls, _invoke, _mouse_click_xy
+    end = time.time() + timeout
+    tried = set()
+    before = (_now_playing()[1] or "").lower()
+
+    def _changed(clicked_name):
+        tr, title, _a = _now_playing()
+        if tr != "playing" or not title:
+            return False
+        if title.lower() != before:
+            return True
+        # Same title as before: only count it if that is what was asked for.
+        want = clicked_name.lower().replace("play ", "", 1)
+        return bool(want) and want in title.lower()
+
+    while time.time() < end:
+        try:
+            hits = find_controls(name=None, control_type="Button", hwnd=hwnd, limit=60)
+        except Exception:
+            hits = []
+        rows, top = [], []
+        for h in hits:
+            nm = (h.get("name") or "").strip()
+            low = nm.lower()
+            if h.get("y") is None or low in ("pause", "play") and (h.get("rect") or {}).get("height", 0) < 40:
+                continue  # transport bar
+            if low.startswith("play "):
+                rows.append(h)
+            elif low == "play":
+                top.append(h)
+        rows.sort(key=lambda h: h.get("y", 0))
+        order = (top + rows) if kind in ("artist", "album", "playlist") else (rows + top)
+        for h in order:
+            key = (h.get("name"), h.get("y"))
+            if key in tried:
+                continue
+            tried.add(key)
+            el = h.get("_el")
+            ok = el is not None and _invoke(el)
+            if not ok:
+                try:
+                    _mouse_click_xy(h["x"], h["y"])
+                except Exception:
+                    continue
+            for _ in range(6):
+                time.sleep(0.5)
+                if _changed(h.get("name") or "Play"):
+                    return h.get("name") or "Play"
+        time.sleep(0.5)
+    return None
 
 
 def play(query, kind="track"):
@@ -198,9 +235,11 @@ def play(query, kind="track"):
         focus_window("spotify")
     except Exception:
         pass
-    name = _click_first_play(hwnd)
+    name = _click_first_play(hwnd, kind=kind)
     if name:
-        return {"success": True, "message": f"Playing on Spotify: {query}", "clicked": name}
+        _tr, title, artist = _now_playing()
+        label = f"{title} · {artist}" if title and artist else (title or name)
+        return {"success": True, "message": f"Playing on Spotify: {label}", "clicked": name, "title": title, "artist": artist}
     return {"success": False, "message": f"Opened Spotify search for '{query}' but could not find a Play button — press play in Spotify"}
 
 
