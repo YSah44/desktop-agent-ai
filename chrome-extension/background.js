@@ -1,5 +1,8 @@
-const WS_URL = 'ws://localhost:8769';
-const VERSION = '1.3.1';
+// 8769 = released Aemyos, 8770 = "next" dev build. Whichever answers first wins.
+const WS_PORTS = [8769, 8770];
+const VERSION = '1.3.3';
+let portIndex = 0;
+let WS_URL = 'ws://localhost:' + WS_PORTS[0];
 
 let ws = null;
 let connected = false;
@@ -18,6 +21,7 @@ function setLastError(err) {
 function connect() {
   if (ws && ws.readyState <= 1) return;
 
+  WS_URL = 'ws://localhost:' + WS_PORTS[portIndex % WS_PORTS.length];
   try {
     ws = new WebSocket(WS_URL);
   } catch (e) {
@@ -70,9 +74,11 @@ function connect() {
   };
 
   ws.onclose = () => {
+    const wasConnected = connected;
     connected = false;
     ws = null;
     chrome.action.setBadgeText({ text: '' });
+    if (!wasConnected) portIndex += 1; // try the other port next time
     scheduleReconnect();
   };
 
@@ -85,7 +91,8 @@ function connect() {
 function scheduleReconnect() {
   if (reconnectTimer) return;
   reconnectAttempts += 1;
-  const delay = Math.min(8000, 2000 + reconnectAttempts * 500);
+  // Alternate ports quickly at first, then back off.
+  const delay = reconnectAttempts <= WS_PORTS.length ? 300 : Math.min(8000, 2000 + reconnectAttempts * 500);
   reconnectTimer = setTimeout(() => {
     reconnectTimer = null;
     connect();

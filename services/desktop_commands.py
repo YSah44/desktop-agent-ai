@@ -133,6 +133,42 @@ def _send_message(params, _command):
     )
 
 
+def _word_type(params, _command):
+    from services.office import word_type
+    return word_type(params.get("text") or "", new_document=bool(params.get("new_document")))
+
+
+def _excel_add_row(params, _command):
+    from services.office import excel_add_row
+    return excel_add_row(params.get("values") or params.get("text") or "", sheet=params.get("sheet"))
+
+
+def _excel_set_cell(params, _command):
+    from services.office import excel_set_cell
+    return excel_set_cell(params.get("cell") or "", params.get("value", ""), sheet=params.get("sheet"))
+
+
+def _outlook_mail(params, _command):
+    from services.office import outlook_mail
+    return outlook_mail(
+        params.get("to") or "", params.get("subject") or "", params.get("body") or params.get("text") or "",
+        send=params.get("send", False) in (True, "true", "yes", 1), cc=params.get("cc") or "",
+    )
+
+
+def _outlook_inbox(params, _command):
+    from services.office import outlook_inbox
+    return outlook_inbox(limit=int(params.get("limit") or 5), unread_only=bool(params.get("unread")))
+
+
+def _outlook_event(params, _command):
+    from services.office import outlook_event
+    return outlook_event(
+        params.get("subject") or params.get("title") or "Meeting", params.get("when") or params.get("start") or "",
+        duration_min=int(params.get("duration") or 60), location=params.get("location") or "",
+    )
+
+
 def _manage_window(params, _command):
     action = params.get("action") or ""
     title = params.get("title") or params.get("name")
@@ -193,6 +229,12 @@ _HANDLERS = {
     "search_files": _search_files,
     "open_path": _open_path,
     "send_message": _send_message,
+    "word_type": _word_type,
+    "excel_add_row": _excel_add_row,
+    "excel_set_cell": _excel_set_cell,
+    "outlook_mail": _outlook_mail,
+    "outlook_inbox": _outlook_inbox,
+    "outlook_event": _outlook_event,
     "manage_window": _manage_window,
     "snap_window": _snap_window,
     "delete_file": _delete_file,

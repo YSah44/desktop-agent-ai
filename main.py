@@ -6495,6 +6495,24 @@ def run_desktop_agent(task, max_iterations=15, use_voice=True, voice_model="tiny
                                     print("[FAST] update_aemyos")
                                     fast_handled = True
                                 if not fast_handled:
+                                    from services import office as _office
+                                    off = _office.parse_request(voice_text)
+                                    if off:
+                                        if off["kind"] == "word":
+                                            r = _office.word_type(off["text"])
+                                            msg = t("office_word_done") if r.get("success") else r.get("message")
+                                        elif off["kind"] == "excel":
+                                            r = _office.excel_add_row(off["values"])
+                                            msg = f"{t('office_excel_done')} · {r.get('row')}" if r.get("success") else r.get("message")
+                                        else:
+                                            r = _office.outlook_inbox(limit=5, unread_only=off.get("unread", False))
+                                            msg = r.get("message") or t("office_inbox_empty")
+                                        add_task(voice_text)
+                                        complete_current_task()
+                                        update_agent_response(msg, speak=True)
+                                        print(f"[FAST] office {off['kind']}: {r.get('message')}")
+                                        fast_handled = True
+                                if not fast_handled:
                                     from services.messaging import parse_request as _parse_chat, send_message as _send_chat
                                     chat = _parse_chat(voice_text)
                                     if chat:

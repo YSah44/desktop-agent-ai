@@ -457,6 +457,13 @@ open_url: {"url": "https://google.com"} — open URL in default browser
 open_app: {"name": "Discord"} — Win+S Start search, then Enter. Resolves against Favorite apps and prepends the name to favorite_apps (max 12). Prefer this over a Win+S / type / Enter chain.
 search_files: {"query": "invoice", "kind": "pdf", "days": 14, "folder": "Downloads"} — local index of the user's folders; returns matching files (name, full path, age). kind ∈ pdf, doc, sheet, slides, image, video, audio, zip, exe, code; days/folder/query all optional. Use this FIRST for "open the file I downloaded…", "find my …", then open_path with the returned path.
 open_path: {"path": "C:\\Users\\me\\Downloads\\invoice.pdf"} — open a file or folder with its default app
+word_type: {"text": "Dear team, ...", "new_document": false} — dictate into the open Word document (COM, no clicking); new_document:true starts a fresh one
+excel_add_row: {"values": ["2026-09-09", "Coffee", 4.5], "sheet": "Sheet1"} — append a row after the last used row of the active workbook
+excel_set_cell: {"cell": "B3", "value": 120}
+outlook_mail: {"to": "ahmet@x.com", "subject": "Late", "body": "...", "send": false} — send:false opens the draft for review (default); send:true only when the user explicitly said send
+outlook_inbox: {"limit": 5, "unread": true} — newest mails as text (time · sender: subject); summarize them with answer
+outlook_event: {"subject": "Dentist", "when": "tomorrow 15:00", "duration": 30, "location": ""} — Outlook calendar appointment
+Prefer these Office commands over keyboard/mouse whenever Word, Excel or Outlook is involved.
 send_message: {"app": "whatsapp", "to": "Ahmet", "text": "I'm running late", "send": true} — drives the installed WhatsApp / Telegram desktop app: finds the contact, types, sends. Use it for "tell X on WhatsApp…", "WhatsApp'ta X'e yaz…". Confirm the contact name back to the user in [Response]. send:false only types without sending.
 find_files: {"query": "invoice.pdf"} — Explorer search window in the user profile (only when the user wants to browse)
 find_files: {"query": "notes", "scope": "start"} — Start-menu search (then press Enter if needed)
