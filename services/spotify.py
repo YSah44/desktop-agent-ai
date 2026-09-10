@@ -25,13 +25,22 @@ def _fold(text):
 
 
 def installed():
+    # Classic installer
     if os.path.exists(os.path.join(os.environ.get("APPDATA", ""), "Spotify", "Spotify.exe")):
         return True
+    # Microsoft Store package
+    try:
+        import glob
+        if glob.glob(os.path.join(os.environ.get("LOCALAPPDATA", ""), "Packages", "SpotifyAB.SpotifyMusic_*")):
+            return True
+    except Exception:
+        pass
+    # Any registered spotify: URL protocol
     try:
         import winreg
-        for root in (winreg.HKEY_CURRENT_USER, winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CLASSES_ROOT):
+        for root, path in ((winreg.HKEY_CLASSES_ROOT, r"spotify"), (winreg.HKEY_CURRENT_USER, r"Software\Classes\spotify")):
             try:
-                key = winreg.OpenKey(root, r"Software\Classes\spotify\shell\open\command" if root != winreg.HKEY_CLASSES_ROOT else r"spotify\shell\open\command")
+                key = winreg.OpenKey(root, path)
                 winreg.CloseKey(key)
                 return True
             except OSError:
