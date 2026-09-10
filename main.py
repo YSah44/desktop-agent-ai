@@ -1596,10 +1596,11 @@ class StatusOverlay:
         from services.i18n import t as _t
         from config import LISTEN_MODE, PTT_KEY
         self._lbl_listen = self._stg_heading(parent, _t("listen_mode"))
-        self._listen_mode = "ptt" if LISTEN_MODE == "ptt" else "always"
+        self._listen_mode = LISTEN_MODE if LISTEN_MODE in ("ptt", "wake") else "always"
         self._listen_btns = self._stg_segmented(
             parent,
-            [("always", _t("listen_always")), ("ptt", f"{_t('listen_ptt')} · {PTT_KEY.upper()}")],
+            [("always", _t("listen_always")), ("wake", _t("listen_wake")),
+             ("ptt", f"{_t('listen_ptt')} · {PTT_KEY.upper()}")],
             self._listen_mode,
             self._apply_listen_mode,
         )
@@ -1695,6 +1696,8 @@ class StatusOverlay:
             return
         if self._listen_mode == "ptt":
             hint.config(text=_t("ptt_hint").replace("{key}", PTT_KEY.upper()), fg=self.CYAN)
+        elif self._listen_mode == "wake":
+            hint.config(text=_t("listen_wake_hint"), fg=self.CYAN)
         else:
             hint.config(text=_t("always_hint"), fg=self.DIM)
         self._refresh_busy_voice_hint()
@@ -6180,13 +6183,20 @@ def run_desktop_agent(task, max_iterations=15, use_voice=True, voice_model="tiny
                         print("[CANCEL] Nothing running.")
                         continue
                 elif use_voice and voice_processor:
-                    from services.voice_input import is_own_voice_echo
+                    from services.voice_input import is_own_voice_echo, wake_word_required
+                    from services.busy_audio import addressed_to_davi
                     transcriptions = pending + voice_processor.get_all_transcriptions()
                     for uttered in transcriptions:
                         if uttered and uttered.strip():
                             if is_own_voice_echo(uttered):
                                 print(f"[MIC] Ignored echo: {uttered}")
                                 continue
+                            if wake_word_required() and not match_voice_quit(uttered) and not match_voice_cancel(uttered):
+                                woke = addressed_to_davi(uttered)
+                                if not woke:
+                                    print(f"[MIC] Ignored (no wake word): {uttered}")
+                                    continue
+                                uttered = woke
                             if match_voice_quit(uttered):
                                 request_quit("voice")
                                 break
@@ -6599,6 +6609,12 @@ def run_desktop_agent(task, max_iterations=15, use_voice=True, voice_model="tiny
                                     for ni in new_input:
                                         if not ni or not str(ni).strip():
                                             continue
+                                        from services.voice_input import wake_word_required as _wake_req
+                                        if _wake_req() and not match_voice_quit(ni) and not match_voice_cancel(ni):
+                                            from services.busy_audio import addressed_to_davi as _addr
+                                            ni = _addr(ni)
+                                            if not ni:
+                                                continue
                                         if match_voice_quit(ni):
                                             request_quit("voice")
                                             break

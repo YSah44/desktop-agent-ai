@@ -24,11 +24,18 @@ mic_muted = bool(_MIC_MUTED)
 
 
 def set_listen_mode(mode):
-    """'always' = open mic, 'ptt' = only capture while the talk key is held."""
+    """'always' = open mic, 'ptt' = only capture while the talk key is held,
+    'wake' = open mic but only sentences that start with her name count."""
     global listen_mode, _ptt_down
-    listen_mode = "ptt" if str(mode).lower() == "ptt" else "always"
+    m = str(mode).lower()
+    listen_mode = m if m in ("ptt", "wake") else "always"
     _ptt_down = False
     return listen_mode
+
+
+def wake_word_required():
+    """Wake-word mode, unless the talk key is held (that is explicit enough)."""
+    return listen_mode == "wake" and not _ptt_down
 
 
 def set_ptt_down(down):
