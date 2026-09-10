@@ -169,6 +169,11 @@ def _outlook_event(params, _command):
     )
 
 
+def _spotify_play(params, _command):
+    from services.spotify import play
+    return play(params.get("query") or params.get("text") or params.get("name") or "", kind=params.get("kind") or "track")
+
+
 def _manage_window(params, _command):
     action = params.get("action") or ""
     title = params.get("title") or params.get("name")
@@ -235,6 +240,7 @@ _HANDLERS = {
     "outlook_mail": _outlook_mail,
     "outlook_inbox": _outlook_inbox,
     "outlook_event": _outlook_event,
+    "spotify_play": _spotify_play,
     "manage_window": _manage_window,
     "snap_window": _snap_window,
     "delete_file": _delete_file,

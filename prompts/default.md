@@ -464,6 +464,7 @@ outlook_mail: {"to": "ahmet@x.com", "subject": "Late", "body": "...", "send": fa
 outlook_inbox: {"limit": 5, "unread": true} — newest mails as text (time · sender: subject); summarize them with answer
 outlook_event: {"subject": "Dentist", "when": "tomorrow 15:00", "duration": 30, "location": ""} — Outlook calendar appointment
 Prefer these Office commands over keyboard/mouse whenever Word, Excel or Outlook is involved.
+spotify_play: {"query": "Tarkan Şımarık", "kind": "track"} — kind: track | album | artist | playlist. Opens the Spotify desktop app and starts playback (falls back to YouTube search when Spotify is not installed). Use for "play X", "put on some jazz", "X çal". Pause/next/previous stay media keys.
 send_message: {"app": "whatsapp", "to": "Ahmet", "text": "I'm running late", "send": true} — drives the installed WhatsApp / Telegram desktop app: finds the contact, types, sends. Use it for "tell X on WhatsApp…", "WhatsApp'ta X'e yaz…". Confirm the contact name back to the user in [Response]. send:false only types without sending.
 find_files: {"query": "invoice.pdf"} — Explorer search window in the user profile (only when the user wants to browse)
 find_files: {"query": "notes", "scope": "start"} — Start-menu search (then press Enter if needed)

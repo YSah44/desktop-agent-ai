@@ -6513,6 +6513,20 @@ def run_desktop_agent(task, max_iterations=15, use_voice=True, voice_model="tiny
                                         print(f"[FAST] office {off['kind']}: {r.get('message')}")
                                         fast_handled = True
                                 if not fast_handled:
+                                    from services import spotify as _spotify
+                                    sp = _spotify.parse_request(voice_text)
+                                    if sp:
+                                        add_task(voice_text)
+                                        r = _spotify.play(sp["query"], sp["kind"])
+                                        if r.get("success"):
+                                            msg = f"{t('spotify_playing')} · {sp['query']}" if not r.get("fallback") else r.get("message")
+                                        else:
+                                            msg = r.get("message")
+                                        complete_current_task()
+                                        update_agent_response(msg, speak=True)
+                                        print(f"[FAST] spotify: {r.get('message')}")
+                                        fast_handled = True
+                                if not fast_handled:
                                     from services.messaging import parse_request as _parse_chat, send_message as _send_chat
                                     chat = _parse_chat(voice_text)
                                     if chat:
