@@ -168,6 +168,38 @@ def _apply_runtime(kwargs):
         g[attr] = val
 
 
+# Everything the Settings panel can change. Keys, provider, Telegram pairing and the
+# privacy blocklist are deliberately NOT here: a reset should never log people out.
+RESETTABLE_KEYS = (
+    'DAVI_LANGUAGE', 'DAVI_THEME', 'DAVI_VOICE_GENDER', 'DAVI_SCREENSHOT_MONITOR',
+    'DAVI_LISTEN_MODE', 'DAVI_MIC_MUTED', 'DAVI_PTT_KEY', 'DAVI_TTS_ENABLED',
+    'DAVI_TTS_RATE', 'DAVI_TTS_VOLUME', 'DAVI_ECHO_CANCEL', 'DAVI_ROOM_AUDIO',
+    'DAVI_OPACITY', 'DAVI_SCREEN_MODE', 'DAVI_START_HIDDEN', 'DAVI_WHISPER_MODEL',
+    'DAVI_ALWAYS_ON_TOP', 'DAVI_WAKE_WORD',
+)
+
+
+def reset_settings_env():
+    """Drop every Settings-panel value from .env so the next start uses defaults."""
+    from services.paths import data_path
+    env_path = data_path('.env')
+    if not os.path.exists(env_path):
+        return []
+    kept, removed = [], []
+    with open(env_path, 'r') as f:
+        for line in f:
+            s = line.strip()
+            if s and not s.startswith('#') and '=' in s and s.split('=', 1)[0].strip() in RESETTABLE_KEYS:
+                removed.append(s.split('=', 1)[0].strip())
+                continue
+            kept.append(line.rstrip('\n'))
+    with open(env_path, 'w') as f:
+        f.write('\n'.join(kept) + ('\n' if kept else ''))
+    for k in removed:
+        os.environ.pop(k, None)
+    return removed
+
+
 def save_env(**kwargs):
     from services.paths import data_path
     env_path = data_path('.env')

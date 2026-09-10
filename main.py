@@ -1310,6 +1310,14 @@ class StatusOverlay:
         # Privacy, routines, conversation, notes, learned, watches open in their own window (see _open_board).
         self._build_activity_setting(stg_body_inner)
 
+        tk.Frame(stg_body_inner, bg=self.BORDER, height=1).pack(fill=tk.X, pady=(10, 3))
+        self._reset_btn = tk.Button(stg_body_inner, text=_t("reset_defaults"), fg=self.RED, bg=self.BG3,
+                                    font=("Segoe UI", 8), bd=0, padx=6, pady=3, cursor="hand2",
+                                    activebackground=self.RED, activeforeground="#ffffff",
+                                    command=self._reset_defaults_clicked)
+        self._reset_btn.pack(fill=tk.X, padx=8, pady=(0, 6))
+        self._reset_armed_job = None
+
         tk.Frame(stg_body_inner, bg=self.BORDER, height=1).pack(fill=tk.X, pady=(4, 3))
         self._lbl_donate = tk.Label(stg_body_inner, text=_t("donate_blurb"), fg=self.DIM, bg=self.CARD,
                                     font=("Segoe UI", 8), wraplength=360, justify=tk.LEFT, anchor="w")
@@ -1793,11 +1801,6 @@ class StatusOverlay:
         # The overlay is always on top by design; the old toggle was re-asserted
         # by the overlay code anyway, so it only confused people.
         self._always_top = True
-        self._reset_pos_btn = tk.Button(parent, text=_t("reset_position"), fg=self.TEXT, bg=self.BG3,
-                                        font=("Segoe UI", 8), bd=0, padx=6, pady=3, cursor="hand2",
-                                        activebackground=self.ACCENT, activeforeground=getattr(self, "ON_FG", "#ffffff"),
-                                        command=self._reset_overlay_position)
-        self._reset_pos_btn.pack(fill=tk.X, padx=8, pady=(4, 0))
         from services import startup as _startup
         self._lbl_start_windows = self._stg_heading(parent, _t("start_with_windows"))
         if not _startup.is_enabled():
@@ -1833,6 +1836,46 @@ class StatusOverlay:
         except Exception:
             pass
         self._debounced_save(DAVI_OPACITY=str(value))
+
+    def _reset_defaults_clicked(self):
+        """Two clicks within 5 s: arm, then wipe Settings values and restart."""
+        from services.i18n import t as _t
+        if getattr(self, "_reset_armed_job", None):
+            self.root.after_cancel(self._reset_armed_job)
+            self._reset_armed_job = None
+            self._do_reset_defaults()
+            return
+        self._reset_btn.config(text=_t("reset_confirm"), bg=self.RED, fg="#ffffff")
+
+        def disarm():
+            self._reset_armed_job = None
+            try:
+                self._reset_btn.config(text=_t("reset_defaults"), bg=self.BG3, fg=self.RED)
+            except tk.TclError:
+                pass
+        self._reset_armed_job = self.root.after(5000, disarm)
+
+    def _do_reset_defaults(self):
+        from config import reset_settings_env
+        removed = reset_settings_env()
+        print(f"[SETTINGS] reset to defaults, removed {removed}")
+        try:
+            self._reset_overlay_position()
+        except Exception:
+            pass
+        # Relaunch after this process has released the single-instance mutex.
+        import subprocess
+        if getattr(sys, "frozen", False):
+            exe, args = sys.executable, sys.argv[1:]
+        else:
+            exe, args = sys.executable, [os.path.abspath(sys.argv[0])] + sys.argv[1:]
+        quoted = " ".join(f'"{a}"' for a in args)
+        cmd = f'cmd /c "timeout /t 2 /nobreak >nul & start "" "{exe}" {quoted}"'
+        try:
+            subprocess.Popen(cmd, creationflags=0x08000000, close_fds=True)
+        except Exception as e:
+            print(f"[SETTINGS] relaunch failed: {e}")
+        self.root.after(300, lambda: request_quit("settings reset"))
 
     def _reset_overlay_position(self):
         self._auto_height = True
