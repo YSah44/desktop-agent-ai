@@ -125,6 +125,8 @@ If this helps, a gift covers time and API bills. Each coin to its own address.
 
 [aemyos.ai/donate.html](https://aemyos.ai/donate.html)
 
+<a href="https://www.buymeacoffee.com/aemyos"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=aemyos&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" alt="Buy me a coffee" height="48"></a>
+
 **Bitcoin**
 
 <img src="https://api.qrserver.com/v1/create-qr-code/?size=96x96&data=bitcoin:bc1qrx62dfggt9hsgpvtgd666adylpnc9dr2jr6tqn" width="80" height="80" alt="BTC">
