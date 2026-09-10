@@ -1086,10 +1086,15 @@ def open_url(url):
 
 
 def _chrome_exe():
+    """First installed Chromium browser: Chrome, then Edge, then Brave (same flags, same extension)."""
     for path in (
         os.path.expandvars(r"%ProgramFiles%\Google\Chrome\Application\chrome.exe"),
         os.path.expandvars(r"%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"),
         os.path.expandvars(r"%LocalAppData%\Google\Chrome\Application\chrome.exe"),
+        os.path.expandvars(r"%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe"),
+        os.path.expandvars(r"%ProgramFiles%\Microsoft\Edge\Application\msedge.exe"),
+        os.path.expandvars(r"%ProgramFiles%\BraveSoftware\Brave-Browser\Application\brave.exe"),
+        os.path.expandvars(r"%LocalAppData%\BraveSoftware\Brave-Browser\Application\brave.exe"),
     ):
         if path and os.path.isfile(path):
             return path
@@ -1534,6 +1539,10 @@ _APP_ALIASES = {
     "google chrome": "Chrome",
     "googlechrome": "Chrome",
     "krom": "Chrome",
+    "edge": "Microsoft Edge",
+    "microsoft edge": "Microsoft Edge",
+    "brave": "Brave",
+    "brave browser": "Brave",
     "firefox": "Firefox",
     "mozilla": "Firefox",
     "edge": "Microsoft Edge",

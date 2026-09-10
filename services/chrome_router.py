@@ -489,11 +489,19 @@ def _rewrite_browser_hotkeys(commands):
     return out
 
 
+_CHROMIUM_TITLES = ("google chrome", "microsoft edge", "brave", "chromium")
+
+
+def is_chromium_title(title):
+    """Chrome, Edge and Brave all run the same extension and the same shortcuts."""
+    t = (title or "").lower()
+    return any(b in t for b in _CHROMIUM_TITLES) or t.endswith(" - chrome")
+
+
 def chrome_is_front():
     try:
         from services.windows_ops import get_foreground_title
-        title = (get_foreground_title() or "").lower()
-        return "chrome" in title
+        return is_chromium_title(get_foreground_title())
     except Exception:
         return False
 

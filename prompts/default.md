@@ -100,6 +100,7 @@ Fast overlay/voice already handles play/pause, next, screenshot, lock, File Expl
 Ctrl+T = New tab | Ctrl+W = Close tab | Ctrl+L = Address bar
 Ctrl+F = Find on page | F5 = Refresh | Ctrl+Tab = Next tab
 When the extension is CONNECTED, use `browser_new_tab` / `browser_close_tab` / `browser_navigate` / `browser_find_tab` instead of these shortcuts.
+Microsoft Edge and Brave are Chromium: same shortcuts, same extension commands, same rules as Chrome. "open edge" / "open brave" launch them like any app.
 
 **General:**
 Ctrl+C/V/X = Copy/Paste/Cut | Ctrl+Z = Undo | Ctrl+A = Select all

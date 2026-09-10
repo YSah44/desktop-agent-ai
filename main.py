@@ -1778,6 +1778,34 @@ class StatusOverlay:
                                         activebackground=self.ACCENT, activeforeground=getattr(self, "ON_FG", "#ffffff"),
                                         command=self._reset_overlay_position)
         self._reset_pos_btn.pack(fill=tk.X, padx=8, pady=(4, 0))
+        from services import startup as _startup
+        self._lbl_start_windows = self._stg_heading(parent, _t("start_with_windows"))
+        self._start_win_btns = self._stg_segmented(
+            parent, [(True, _t("speech_on")), (False, _t("speech_off"))],
+            _startup.is_enabled(), self._apply_start_with_windows,
+        )
+        self._lbl_start_hidden = self._stg_heading(parent, _t("start_hidden"))
+        self._start_hidden_btns = self._stg_segmented(
+            parent, [(True, _t("speech_on")), (False, _t("speech_off"))],
+            _startup.starts_hidden(), self._apply_start_hidden,
+        )
+        self._start_hint = tk.Label(parent, text=_t("start_hint"), fg=self.DIM, bg=self.CARD,
+                                    font=("Segoe UI", 8), anchor="w", justify=tk.LEFT, wraplength=330)
+        self._start_hint.pack(fill=tk.X, padx=8, pady=(2, 0))
+
+    def _apply_start_with_windows(self, on):
+        from services.i18n import t as _t
+        from services import startup as _startup
+        _startup.set_enabled(bool(on), hidden=_startup.starts_hidden())
+        self._paint_segmented(self._start_win_btns, bool(on))
+        self._stg_flash(_t("settings_saved"))
+
+    def _apply_start_hidden(self, on):
+        from services.i18n import t as _t
+        from services import startup as _startup
+        _startup.set_starts_hidden(bool(on))
+        self._paint_segmented(self._start_hidden_btns, bool(on))
+        self._stg_flash(_t("settings_saved"))
 
     def _apply_opacity(self, value):
         try:
@@ -4497,6 +4525,9 @@ class StatusOverlay:
                     self.root.withdraw()
 
                     def _reshow():
+                        # Respect a hide that happened in between (tray / --hidden start).
+                        if getattr(self, "_user_hidden", False) or getattr(self, "_minimized", False):
+                            return
                         try:
                             self.root.deiconify()
                             self._assert_topmost()
@@ -6766,6 +6797,7 @@ if __name__ == "__main__":
     parser.add_argument("task", nargs="?", default=None,
                         help="Initial task (optional - leave empty for standby mode)")
     parser.add_argument("--no-voice", action="store_true", help="Disable voice input")
+    parser.add_argument("--hidden", action="store_true", help="Start in the tray; the overlay appears on the first command")
     parser.add_argument("--voice-model", default="base", choices=["tiny", "base", "small", "medium", "large"],
                         help="Whisper model size")
     parser.add_argument("--voice-language", default="en", help="Voice recognition language (default: en)")
@@ -6822,6 +6854,19 @@ if __name__ == "__main__":
         pass
 
     update_agent_status(t("starting"))
+
+    if args.hidden:
+        def _start_in_tray():
+            win = status_window
+            if win is None:
+                threading.Timer(0.5, _start_in_tray).start()
+                return
+            try:
+                win.root.after(300, win.hide_until_shown)
+                print("[MAIN] Started hidden (tray). Say a command to show the overlay.")
+            except Exception as e:
+                print(f"[MAIN] start hidden: {e}")
+        _start_in_tray()
 
     # Start browser bridge for Chrome extension
     try:
