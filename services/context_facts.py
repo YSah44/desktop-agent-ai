@@ -1,5 +1,5 @@
 """Ambient facts Aemyos works out on its own, quietly, while idle: where the PC is
-(Windows location if allowed, else IP geolocation, city level), the timezone, and
+(IP geolocation, city level — no Windows location permission is ever requested), the timezone, and
 from that the weather. Cached in context.json and refreshed every few hours; the
 lines go into the model's system prompt so it never has to ask "where are you?"."""
 import json
@@ -53,7 +53,10 @@ def _get_json(url, timeout=6):
 # ── Sources ──────────────────────────────────────────────────────
 
 def _windows_location():
-    """Precise position when the user allowed Location for desktop apps. None otherwise."""
+    """Precise position from Windows Location. OFF by default: asking for it can pop a
+    privacy prompt, and city-level from the IP is enough. Opt in with DAVI_USE_WINDOWS_LOCATION=1."""
+    if os.environ.get("DAVI_USE_WINDOWS_LOCATION", "0") != "1":
+        return None
     try:
         import asyncio
         from winsdk.windows.devices.geolocation import Geolocator, GeolocationAccessStatus
