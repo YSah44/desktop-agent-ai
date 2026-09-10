@@ -1285,12 +1285,11 @@ class StatusOverlay:
         self._build_listen_setting(stg_body_inner)
         self._build_speech_setting(stg_body_inner)
         self._build_appearance_setting(stg_body_inner)
+        self._build_telegram_setting(stg_body_inner)
         self._build_privacy_setting(stg_body_inner)
-        self._build_memory_setting(stg_body_inner)
-        self._build_notes_setting(stg_body_inner)
         self._build_routines_setting(stg_body_inner)
-        self._build_watches_setting(stg_body_inner)
-        self._build_history_setting(stg_body_inner)
+        # Conversation / notes / learned / watches live in their own window (see _open_board).
+        self._build_activity_setting(stg_body_inner)
 
         tk.Frame(stg_body_inner, bg=self.BORDER, height=1).pack(fill=tk.X, pady=(4, 3))
         self._lbl_donate = tk.Label(stg_body_inner, text=_t("donate_blurb"), fg=self.DIM, bg=self.CARD,
@@ -1827,6 +1826,9 @@ class StatusOverlay:
 
     def _refresh_memory_list(self):
         from services.i18n import t as _t
+        if getattr(self, "_mem_list", None) is None:
+            self._refill_board_if("learned")
+            return
         for w in self._mem_list.winfo_children():
             w.destroy()
         learned = []
@@ -1934,6 +1936,9 @@ class StatusOverlay:
     def refresh_notes(self):
         from services.i18n import t as _t
         from services.personal import list_notes
+        if getattr(self, "_notes_rows", None) is None:
+            self._refill_board_if("notes")
+            return
         try:
             entries = [(n["text"], n["text"]) for n in list_notes(12)][::-1]
         except Exception:
@@ -1951,6 +1956,111 @@ class StatusOverlay:
         clear_notes()
         self.refresh_notes()
         self._position_settings_window()
+
+    def _build_telegram_setting(self, parent):
+        from services.i18n import t as _t
+        self._stg_divider(parent)
+        self._lbl_tg = self._stg_heading(parent, _t("tg_title"))
+        self._tg_hint = tk.Label(parent, text=_t("tg_hint"), fg=self.DIM, bg=self.CARD,
+                                 font=("Segoe UI", 7), anchor="w", justify=tk.LEFT, wraplength=330)
+        self._tg_hint.pack(fill=tk.X, padx=8)
+        self._tg_token_var = tk.StringVar(value=self._mask_key(os.environ.get("DAVI_TELEGRAM_TOKEN", "")))
+        self._tg_entry = tk.Entry(
+            parent, textvariable=self._tg_token_var, font=("Consolas", 8), bg=self.BG3, fg=self.TEXT,
+            insertbackground=self.TEXT, bd=0, highlightthickness=1, highlightbackground=self.BORDER,
+            highlightcolor=self.ACCENT,
+        )
+        self._tg_entry.pack(fill=tk.X, padx=8, pady=(4, 0), ipady=3)
+        self._tg_entry.bind("<FocusIn>", lambda e: self._tg_token_var.set("") if "•" in self._tg_token_var.get() else None)
+        self._tg_entry.bind("<Return>", lambda e: self._save_telegram_token())
+        row = tk.Frame(parent, bg=self.CARD)
+        row.pack(fill=tk.X, padx=8, pady=(4, 0))
+        self._tg_save = tk.Button(
+            row, text=_t("tg_save"), fg=getattr(self, "ON_FG", "#ffffff"), bg=self.ACCENT,
+            font=("Segoe UI", 7, "bold"), bd=0, padx=8, pady=3, cursor="hand2",
+            activebackground=self.ACCENT2, activeforeground="#ffffff", command=self._save_telegram_token,
+        )
+        self._tg_save.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 4))
+        self._tg_unpair = tk.Button(
+            row, text=_t("tg_unpair"), fg=self.DIM, bg=self.BG3, font=("Segoe UI", 7), bd=0,
+            padx=8, pady=3, cursor="hand2", activebackground=self.RED, activeforeground="#ffffff",
+            command=self._unpair_telegram,
+        )
+        self._tg_unpair.pack(side=tk.LEFT)
+        self._tg_status = tk.Label(parent, text="", fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8, "bold"), anchor="w")
+        self._tg_status.pack(fill=tk.X, padx=8, pady=(4, 0))
+        self._refresh_telegram_status()
+
+    def _refresh_telegram_status(self):
+        from services.i18n import t as _t
+        lbl = getattr(self, "_tg_status", None)
+        if lbl is None:
+            return
+        try:
+            from services import telegram_bot as tg
+            if not tg.running():
+                lbl.config(text=_t("tg_status_off"), fg=self.DIM)
+            elif tg.is_paired():
+                lbl.config(text=_t("tg_status_paired"), fg=self.GREEN)
+            else:
+                lbl.config(text=f"{_t('tg_status_code')} {tg.pairing_code()}", fg=self.YELLOW)
+        except Exception:
+            lbl.config(text=_t("tg_status_off"), fg=self.DIM)
+        if getattr(self, "_settings_open", False):
+            self.root.after(3000, self._refresh_telegram_status)
+
+    def _save_telegram_token(self):
+        from services.i18n import t as _t
+        from config import save_env
+        token = self._tg_token_var.get().strip()
+        if not token or "•" in token:
+            return
+        save_env(DAVI_TELEGRAM_TOKEN=token)
+        self._tg_token_var.set(self._mask_key(token))
+        try:
+            from services import telegram_bot as tg
+            tg.stop()
+            tg.start(token, os.environ.get("DAVI_TELEGRAM_CHAT_ID", ""), enqueue=enqueue_remote_command)
+            if tg.notify not in _reply_sinks:
+                _reply_sinks.append(tg.notify)
+        except Exception as e:
+            print(f"[TG] start from settings: {e}")
+        self._stg_flash(_t("settings_saved"))
+        self._refresh_telegram_status()
+
+    def _unpair_telegram(self):
+        from services.i18n import t as _t
+        try:
+            from services import telegram_bot as tg
+            tg.unpair()
+        except Exception as e:
+            print(f"[TG] unpair: {e}")
+        self._stg_flash(_t("settings_saved"))
+        self._refresh_telegram_status()
+
+    def _build_activity_setting(self, parent):
+        from services.i18n import t as _t
+        self._stg_divider(parent)
+        self._lbl_activity = self._stg_heading(parent, _t("activity_title"))
+        grid = tk.Frame(parent, bg=self.CARD)
+        grid.pack(fill=tk.X, padx=8, pady=(4, 0))
+        self._activity_btns = {}
+        for i, (kind, key) in enumerate((("history", "history_title"), ("notes", "notes_title"),
+                                          ("learned", "memory_title"), ("watches", "watches_title"))):
+            b = tk.Button(
+                grid, text=f"{_t(key)}  ▸", fg=self.TEXT, bg=self.BG3, font=("Segoe UI", 8), bd=0,
+                padx=8, pady=6, cursor="hand2", activebackground=self.ACCENT, activeforeground="#ffffff",
+                anchor="w", command=lambda k=kind: self._open_board(k),
+            )
+            b.grid(row=i // 2, column=i % 2, sticky="ew", padx=2, pady=2)
+            self._bind_hover(b, self.BG3, self.TEXT, self.ACCENT, "#ffffff")
+            self._activity_btns[kind] = b
+        grid.columnconfigure(0, weight=1)
+        grid.columnconfigure(1, weight=1)
+
+    def _refill_board_if(self, kind):
+        if getattr(self, "_board_open", False) and getattr(self, "_board_kind", None) == kind:
+            self.root.after(50, self._fill_board_table)
 
     def _build_privacy_setting(self, parent):
         from services.i18n import t as _t
@@ -2071,6 +2181,9 @@ class StatusOverlay:
 
     def refresh_watches(self):
         from services.i18n import t as _t
+        if getattr(self, "_watches_rows", None) is None:
+            self._refill_board_if("watches")
+            return
         try:
             from services import watchers
             entries = [(w["query"] or w["kind"], w["id"]) for w in watchers.list_watches()]
@@ -2098,6 +2211,9 @@ class StatusOverlay:
     def refresh_history(self):
         from services.i18n import t as _t
         from services.personal import list_history
+        if getattr(self, "_history_rows", None) is None:
+            self._refill_board_if("history")
+            return
         try:
             rows = list_history(14)
         except Exception:
@@ -4935,6 +5051,11 @@ class StatusOverlay:
                           activebackground="#3b1520", activeforeground=self.RED,
                           command=self._close_board)
         close.pack(side=tk.RIGHT, padx=(1, 8), pady=8)
+        self._board_clear_btn = tk.Button(
+            head, text=_t("board_clear"), fg=self.DIM, bg=self.BG2, font=("Segoe UI", 7),
+            bd=0, padx=8, pady=2, cursor="hand2", activebackground=self.RED, activeforeground="#ffffff",
+            command=self._clear_board_kind,
+        )
         for w in (head, self._lbl_board):
             w.bind("<Button-1>", self._start_board_drag)
             w.bind("<B1-Motion>", self._do_board_drag)
@@ -4965,8 +5086,19 @@ class StatusOverlay:
         if tree is None:
             return
         kind = getattr(self, "_board_kind", "tasks")
+        titles = {"history": "history_title", "notes": "notes_title", "learned": "memory_title", "watches": "watches_title"}
         try:
-            if kind == "reminders":
+            clear_btn = getattr(self, "_board_clear_btn", None)
+            if clear_btn is not None:
+                clear_btn.pack_forget()
+                if kind in titles:
+                    clear_btn.pack(side=tk.RIGHT, padx=(0, 4), pady=8)
+            if kind in titles:
+                self._lbl_board.config(text=_t(titles[kind]))
+                tree.heading("status", text=_t("col_who") if kind == "history" else "")
+                tree.heading("item", text=_t("col_item"))
+                tree.heading("when", text="")
+            elif kind == "reminders":
                 self._lbl_board.config(text=_t("reminders"))
                 tree.heading("status", text=_t("col_when"))
                 tree.heading("item", text=_t("reminders"))
@@ -5071,6 +5203,32 @@ class StatusOverlay:
                 pass
         elif kind == "rem":
             self.cancel_reminder_by_id(sid)
+        elif kind == "note":
+            from services.personal import delete_note
+            delete_note(sid)
+        elif kind == "learned":
+            self._forget_memory(sid)
+        elif kind == "watch":
+            from services import watchers
+            watchers.cancel_watch(sid)
+        self.root.after(50, self._fill_board_table)
+
+    def _clear_board_kind(self):
+        kind = getattr(self, "_board_kind", None)
+        try:
+            if kind == "history":
+                from services.personal import clear_history
+                clear_history()
+            elif kind == "notes":
+                from services.personal import clear_notes
+                clear_notes()
+            elif kind == "learned":
+                self._clear_memory()
+            elif kind == "watches":
+                from services import watchers
+                watchers.clear_watches()
+        except Exception as e:
+            print(f"[UI] clear {kind}: {e}")
         self.root.after(50, self._fill_board_table)
 
     def _fill_board_table(self):
@@ -5082,7 +5240,43 @@ class StatusOverlay:
             tree.delete(item)
         kind = getattr(self, "_board_kind", "tasks")
         rows = 0
-        if kind == "reminders":
+        if kind == "history":
+            from services.personal import list_history
+            who = {"you": _t("you"), "davi": _t("davi")}
+            for r in list_history(60):
+                tree.insert("", "end", values=(who.get(r.get("role"), r.get("role", "")), str(r.get("text") or "")[:120], "", ""), tags=("hist", ""))
+                rows += 1
+            empty = "" if rows else _t("history_empty")
+        elif kind == "notes":
+            from services.personal import list_notes
+            for n in list_notes(60)[::-1]:
+                tree.insert("", "end", values=("", str(n.get("text") or "")[:120], "", "✕"), tags=("note", str(n.get("text") or "")))
+                rows += 1
+            empty = "" if rows else _t("notes_empty")
+        elif kind == "learned":
+            try:
+                from services.execute_funcs import load_memory
+                from services.personal import list_life_rows
+                items = [i.get("text") if isinstance(i, dict) else str(i) for i in (load_memory().get("learned") or [])]
+                items = list(list_life_rows(30)) + items
+            except Exception:
+                items = []
+            for text in items[::-1]:
+                if text:
+                    tree.insert("", "end", values=("", str(text)[:120], "", "✕"), tags=("learned", str(text)))
+                    rows += 1
+            empty = "" if rows else _t("memory_empty")
+        elif kind == "watches":
+            try:
+                from services import watchers
+                watch_rows = watchers.list_watches()
+            except Exception:
+                watch_rows = []
+            for w in watch_rows:
+                tree.insert("", "end", values=(str(w.get("kind") or ""), str(w.get("query") or "")[:120], "", "✕"), tags=("watch", str(w.get("id") or "")))
+                rows += 1
+            empty = "" if rows else _t("watches_empty")
+        elif kind == "reminders":
             try:
                 from services.smart_features import get_reminders
                 rems = get_reminders() or []

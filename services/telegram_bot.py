@@ -148,6 +148,23 @@ def start(token, owner_chat_id="", enqueue=None):
     return _pair_code
 
 
+def running():
+    return bool(_running and _token)
+
+
+def unpair():
+    """Forget the paired phone and issue a fresh pairing code."""
+    global _owner, _pair_code
+    _owner = None
+    _pair_code = f"{random.randint(100000, 999999)}"
+    try:
+        from config import save_env
+        save_env(DAVI_TELEGRAM_CHAT_ID="")
+    except Exception:
+        pass
+    return _pair_code
+
+
 def stop():
     global _running
     _running = False
