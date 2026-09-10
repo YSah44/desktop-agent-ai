@@ -141,7 +141,7 @@ _room = os.environ.get('DAVI_ROOM_AUDIO', 'speakers').lower().strip()
 ROOM_AUDIO = 'headphones' if _room in ('headphones', 'headset', 'kulaklik', 'kulaklık') else 'speakers'
 
 OPACITY = int(os.environ.get('DAVI_OPACITY', '100'))        # percent, 60..100
-ALWAYS_ON_TOP = os.environ.get('DAVI_ALWAYS_ON_TOP', '1') != '0'
+ALWAYS_ON_TOP = True  # overlay is always on top; the old DAVI_ALWAYS_ON_TOP toggle was removed in 1.9
 
 
 _RUNTIME_ENV = {

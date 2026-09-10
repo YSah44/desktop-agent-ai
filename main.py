@@ -1790,13 +1790,9 @@ class StatusOverlay:
         self._lbl_appearance = self._stg_heading(parent, _t("appearance"))
         _, _, self._lbl_opacity = self._stg_slider(
             parent, _t("opacity"), 60, 100, OPACITY, lambda v: f"{v}%", self._apply_opacity)
-        self._always_top = bool(ALWAYS_ON_TOP)
-        self._top_btns = self._stg_segmented(
-            parent,
-            [(True, _t("always_on_top")), (False, _t("speech_off"))],
-            self._always_top,
-            self._apply_always_on_top,
-        )
+        # The overlay is always on top by design; the old toggle was re-asserted
+        # by the overlay code anyway, so it only confused people.
+        self._always_top = True
         self._reset_pos_btn = tk.Button(parent, text=_t("reset_position"), fg=self.TEXT, bg=self.BG3,
                                         font=("Segoe UI", 8), bd=0, padx=6, pady=3, cursor="hand2",
                                         activebackground=self.ACCENT, activeforeground=getattr(self, "ON_FG", "#ffffff"),
@@ -1804,31 +1800,30 @@ class StatusOverlay:
         self._reset_pos_btn.pack(fill=tk.X, padx=8, pady=(4, 0))
         from services import startup as _startup
         self._lbl_start_windows = self._stg_heading(parent, _t("start_with_windows"))
-        self._start_win_btns = self._stg_segmented(
-            parent, [(True, _t("speech_on")), (False, _t("speech_off"))],
-            _startup.is_enabled(), self._apply_start_with_windows,
-        )
-        self._lbl_start_hidden = self._stg_heading(parent, _t("start_hidden"))
-        self._start_hidden_btns = self._stg_segmented(
-            parent, [(True, _t("speech_on")), (False, _t("speech_off"))],
-            _startup.starts_hidden(), self._apply_start_hidden,
+        if not _startup.is_enabled():
+            self._start_mode = "off"
+        else:
+            self._start_mode = "tray" if _startup.starts_hidden() else "visible"
+        self._start_btns = self._stg_segmented(
+            parent,
+            [("off", _t("speech_off")), ("visible", _t("start_visible")), ("tray", _t("start_tray"))],
+            self._start_mode, self._apply_start_mode,
         )
         self._start_hint = tk.Label(parent, text=_t("start_hint"), fg=self.DIM, bg=self.CARD,
                                     font=("Segoe UI", 8), anchor="w", justify=tk.LEFT, wraplength=330)
         self._start_hint.pack(fill=tk.X, padx=8, pady=(2, 0))
 
-    def _apply_start_with_windows(self, on):
+    def _apply_start_mode(self, mode):
+        """Off / Visible / In the tray — one control for the Windows Run entry."""
         from services.i18n import t as _t
         from services import startup as _startup
-        _startup.set_enabled(bool(on), hidden=_startup.starts_hidden())
-        self._paint_segmented(self._start_win_btns, bool(on))
-        self._stg_flash(_t("settings_saved"))
-
-    def _apply_start_hidden(self, on):
-        from services.i18n import t as _t
-        from services import startup as _startup
-        _startup.set_starts_hidden(bool(on))
-        self._paint_segmented(self._start_hidden_btns, bool(on))
+        self._start_mode = mode
+        if mode == "off":
+            _startup.set_enabled(False)
+        else:
+            _startup.set_starts_hidden(mode == "tray")
+            _startup.set_enabled(True, hidden=(mode == "tray"))
+        self._paint_segmented(self._start_btns, mode)
         self._stg_flash(_t("settings_saved"))
 
     def _apply_opacity(self, value):
@@ -1838,20 +1833,6 @@ class StatusOverlay:
         except Exception:
             pass
         self._debounced_save(DAVI_OPACITY=str(value))
-
-    def _apply_always_on_top(self, on):
-        from config import save_env
-        from services.i18n import t as _t
-        self._always_top = bool(on)
-        try:
-            self.root.attributes("-topmost", self._always_top)
-            self._stg_win.attributes("-topmost", self._always_top)
-            self._apply_app_window_style()
-        except Exception:
-            pass
-        save_env(DAVI_ALWAYS_ON_TOP="1" if on else "0")
-        self._paint_segmented(self._top_btns, self._always_top)
-        self._stg_flash(_t("settings_saved"))
 
     def _reset_overlay_position(self):
         self._auto_height = True
@@ -2382,7 +2363,7 @@ class StatusOverlay:
         self._refresh_gender_buttons()
         self._sync_face_action_buttons()
         for attr, current in (("_screen_btns", "_screen_mode"), ("_listen_btns", "_listen_mode"),
-                              ("_speech_btns", "_speech_on"), ("_top_btns", "_always_top"),
+                              ("_speech_btns", "_speech_on"), ("_start_btns", "_start_mode"),
                               ("_provider_btns", "_provider"), ("_echo_btns", "_room_audio")):
             btns = getattr(self, attr, None)
             if btns:
