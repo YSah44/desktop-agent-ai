@@ -777,6 +777,7 @@ class VoiceInputProcessor:
         self._tts_preroll = deque()
         self._tts_holdoff_until = time.time() + max(0.0, float(holdoff))
         self._tts_bleed_floor = 0.0
+        self._tts_bleed_peak = 0.0
         self._tts_bleed_n = 0
         self._tts_barge_hits = 0
         self._discard_capture()
@@ -955,13 +956,18 @@ class VoiceInputProcessor:
             n_b = int(getattr(self, "_tts_bleed_n", 0) or 0)
             self._prev_energy = energy_b
             self.current_audio_level = min(energy_b * 10, 1.0)
-            if n_b >= 4 and near_field_user(
+            # Her own playback sets the reference: a barge-in must clearly beat the
+            # loudest thing heard so far in this utterance, block after block.
+            peak_b = float(getattr(self, "_tts_bleed_peak", 0.0) or 0.0)
+            louder_than_her = energy_b > max(peak_b * 1.6, 0.02)
+            if n_b >= 5 and louder_than_her and near_field_user(
                 energy_b, prev_b, floor_b, sim_b, headphones=room_is_headphones()
             ):
                 self._tts_barge_hits = int(getattr(self, "_tts_barge_hits", 0) or 0) + 1
             else:
                 self._tts_barge_hits = 0
                 self._note_bleed(energy_b)
+                self._tts_bleed_peak = max(peak_b * 0.97, energy_b)
             # Speakers: her own loud syllables can pass near_field twice in a row.
             need_hits = 2 if room_is_headphones() else 3
             if self._tts_barge_hits >= need_hits:
