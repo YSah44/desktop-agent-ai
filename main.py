@@ -761,10 +761,10 @@ class StatusOverlay:
         self._ver_pill = tk.Frame(name_row, bg=self.ACCENT)
         self._ver_pill.pack(side=tk.LEFT, padx=(8, 0))
         self._ver_lbl = tk.Label(self._ver_pill, text=DAVI_VERSION, fg=getattr(self, "ON_FG", "#ffffff"), bg=self.ACCENT,
-                                 font=("Segoe UI", 7, "bold"))
+                                 font=("Segoe UI", 8, "bold"))
         self._ver_lbl.pack(padx=6, pady=1)
         self._dictation_badge = tk.Label(name_row, text="", fg=getattr(self, "ON_FG", "#ffffff"),
-                                         bg=self.ACCENT, font=("Segoe UI", 7, "bold"))
+                                         bg=self.ACCENT, font=("Segoe UI", 8, "bold"))
         hdr_right = tk.Frame(header, bg=self.BG2)
         hdr_right.pack(side=tk.RIGHT, padx=(0, 4))
         self.status_dot = tk.Label(hdr_right, text="●", fg=self.GREEN, bg=self.BG2, font=("Segoe UI", 9))
@@ -881,7 +881,7 @@ class StatusOverlay:
         self.bridge_label = tk.Label(bridge_row, text=_t("chrome_off"), fg=self.DIM, bg=self.CARD,
                                       font=("Segoe UI", 8), anchor="w")
         self._ext_btn = tk.Button(bridge_row, text=_t("setup"), fg=self.ACCENT, bg=self.BG3,
-                                   font=("Segoe UI", 7, "bold"), bd=0, padx=8, pady=2, cursor="hand2",
+                                   font=("Segoe UI", 8, "bold"), bd=0, padx=8, pady=2, cursor="hand2",
                                    activebackground=self.BG2, command=self._open_extension_setup)
         # Pack Setup on the right first so "Chrome Disconnected" cannot clip it off.
         self._ext_btn.pack(side=tk.RIGHT, padx=(4, 0))
@@ -899,7 +899,7 @@ class StatusOverlay:
         qa_inner = tk.Frame(qa_card, bg=self.CARD)
         qa_inner.pack(fill=tk.X, padx=10, pady=10)
         self._lbl_controls = tk.Label(qa_inner, text=_t("controls"), fg=self.DIM, bg=self.CARD,
-                                       font=("Segoe UI", 7, "bold"))
+                                       font=("Segoe UI", 8, "bold"))
         self._lbl_controls.pack(anchor="w", pady=(0, 6))
         self._qa_caps = []
         self._qa_tiles = []
@@ -937,7 +937,7 @@ class StatusOverlay:
         self._lbl_mic.pack(side=tk.LEFT, padx=(0, 8))
         self._mic_mute_btn = tk.Button(
             mic_hdr, text=_t("mic_btn_mute"), fg=self.TEXT, bg=self.BG3,
-            font=("Segoe UI", 7, "bold"), bd=0, padx=10, pady=3, cursor="hand2",
+            font=("Segoe UI", 8, "bold"), bd=0, padx=10, pady=3, cursor="hand2",
             activebackground=self.BG2, command=self._toggle_own_mic,
         )
         self._mic_mute_btn.pack(side=tk.RIGHT)
@@ -987,7 +987,7 @@ class StatusOverlay:
         self._wave_line = None
         self._wave_rms_label = tk.Label(
             self._wave_wrap, text="", fg=self.DIM, bg=self.BG3,
-            font=("Segoe UI", 7),
+            font=("Segoe UI", 8),
         )
         self._wave_rms_label.place(relx=1.0, rely=1.0, anchor="se", x=-8, y=-6)
 
@@ -1005,7 +1005,7 @@ class StatusOverlay:
         self._lbl_you.pack(side=tk.LEFT)
         self._you_chevron = tk.Label(you_hdr, text="▾", fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8), cursor="hand2")
         self._you_chevron.pack(side=tk.RIGHT)
-        self._you_time = tk.Label(you_hdr, text="", fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7))
+        self._you_time = tk.Label(you_hdr, text="", fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8))
         self._you_time.pack(side=tk.RIGHT, padx=(0, 6))
 
         self.trans_text = self._make_bubble(you_inner, self.ACCENT, pady=(8, 0), lines=3)
@@ -1052,7 +1052,7 @@ class StatusOverlay:
         self._lbl_davi.pack(side=tk.LEFT)
         self._davi_chevron = tk.Label(davi_hdr, text="▾", fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8), cursor="hand2")
         self._davi_chevron.pack(side=tk.RIGHT)
-        self._davi_time = tk.Label(davi_hdr, text="", fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7))
+        self._davi_time = tk.Label(davi_hdr, text="", fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8))
         self._davi_time.pack(side=tk.RIGHT, padx=(0, 6))
 
         self.response_text = self._make_bubble(davi_inner, self.ACCENT, pady=(8, 0), lines=6)
@@ -1157,10 +1157,10 @@ class StatusOverlay:
         self._stg_meta = tk.Label(
             stg_body_inner,
             text=f"Aemyos {DAVI_VERSION}",
-            fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7),
+            fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8),
         )
         self._stg_meta.pack(anchor="w", pady=(8, 0), padx=8)
-        self._lbl_language = tk.Label(stg_body_inner, text=_t("language"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7))
+        self._lbl_language = tk.Label(stg_body_inner, text=_t("language"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8))
         self._lbl_language.pack(anchor="w", pady=(8, 0), padx=8)
         lang_names = list(LANGUAGES.values())
         lang_keys = list(LANGUAGES.keys())
@@ -1171,7 +1171,7 @@ class StatusOverlay:
         self._lang_combo.bind("<<ComboboxSelected>>", lambda e: self._on_language_change(lang_keys, lang_names))
         self._lang_combo.bind("<MouseWheel>", lambda e: "break")
 
-        self._lbl_theme = tk.Label(stg_body_inner, text=_t("theme"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7))
+        self._lbl_theme = tk.Label(stg_body_inner, text=_t("theme"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8))
         self._lbl_theme.pack(anchor="w", pady=(8, 0), padx=8)
         theme_row = tk.Frame(stg_body_inner, bg=self.CARD)
         theme_row.pack(fill=tk.X, pady=(2, 0), padx=8)
@@ -1186,7 +1186,7 @@ class StatusOverlay:
         self._refresh_theme_buttons()
 
         from services.i18n import get_voice_gender
-        self._lbl_voice_gender = tk.Label(stg_body_inner, text=_t("voice_gender"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7))
+        self._lbl_voice_gender = tk.Label(stg_body_inner, text=_t("voice_gender"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8))
         self._lbl_voice_gender.pack(anchor="w", pady=(8, 0), padx=8)
         gender_row = tk.Frame(stg_body_inner, bg=self.CARD)
         gender_row.pack(fill=tk.X, pady=(2, 0), padx=8)
@@ -1202,7 +1202,7 @@ class StatusOverlay:
         self._refresh_gender_buttons()
 
         # AI Model
-        self._lbl_model = tk.Label(stg_body_inner, text=_t("ai_model"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7))
+        self._lbl_model = tk.Label(stg_body_inner, text=_t("ai_model"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8))
         self._lbl_model.pack(anchor="w", pady=(6, 0), padx=8)
         from config import AVAILABLE_MODELS, MODEL, WHISPER_MODELS, WHISPER_MODEL
         model_names = list(AVAILABLE_MODELS.values())
@@ -1215,7 +1215,7 @@ class StatusOverlay:
         self._model_combo.bind("<MouseWheel>", lambda e: "break")
 
         # Whisper Model
-        self._lbl_whisper = tk.Label(stg_body_inner, text=_t("voice_model"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7))
+        self._lbl_whisper = tk.Label(stg_body_inner, text=_t("voice_model"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8))
         self._lbl_whisper.pack(anchor="w", pady=(6, 0), padx=8)
         whisper_names = list(WHISPER_MODELS.values())
         whisper_keys = list(WHISPER_MODELS.keys())
@@ -1228,7 +1228,7 @@ class StatusOverlay:
 
         from config import PROVIDER as _PROVIDER
         self._provider = "openrouter" if _PROVIDER == "openrouter" else "anthropic"
-        self._lbl_provider = tk.Label(stg_body_inner, text=_t("provider"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7))
+        self._lbl_provider = tk.Label(stg_body_inner, text=_t("provider"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8))
         self._lbl_provider.pack(anchor="w", pady=(8, 0), padx=8)
         self._provider_btns = self._stg_segmented(
             stg_body_inner,
@@ -1237,13 +1237,13 @@ class StatusOverlay:
             self._on_provider_change,
         )
         self._provider_hint = tk.Label(
-            stg_body_inner, text="", fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7),
+            stg_body_inner, text="", fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8),
             wraplength=240, justify="left",
         )
         self._provider_hint.pack(anchor="w", pady=(3, 0), padx=8)
 
         # API Keys
-        self._lbl_anth = tk.Label(stg_body_inner, text=_t("anth_key"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7))
+        self._lbl_anth = tk.Label(stg_body_inner, text=_t("anth_key"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8))
         self._lbl_anth.pack(anchor="w", pady=(8, 0), padx=8)
         self._anth_key_var = tk.StringVar(value=self._mask_key(os.environ.get('ANTHROPIC_API_KEY', '')))
         self._anth_key_entry = tk.Entry(stg_body_inner, textvariable=self._anth_key_var, font=("Consolas", 8),
@@ -1253,7 +1253,7 @@ class StatusOverlay:
         self._anth_key_entry.bind("<FocusIn>", lambda e: self._on_key_focus('anthropic'))
         self._anth_key_entry.bind("<Return>", lambda e: self._save_key('anthropic'))
 
-        self._lbl_groq = tk.Label(stg_body_inner, text=_t("groq_key"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7))
+        self._lbl_groq = tk.Label(stg_body_inner, text=_t("groq_key"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8))
         self._lbl_groq.pack(anchor="w", pady=(6, 0), padx=8)
         self._groq_key_var = tk.StringVar(value=self._mask_key(os.environ.get('GROQ_API_KEY', '')))
         self._groq_key_entry = tk.Entry(stg_body_inner, textvariable=self._groq_key_var, font=("Consolas", 8),
@@ -1263,7 +1263,7 @@ class StatusOverlay:
         self._groq_key_entry.bind("<FocusIn>", lambda e: self._on_key_focus('groq'))
         self._groq_key_entry.bind("<Return>", lambda e: self._save_key('groq'))
 
-        self._lbl_or = tk.Label(stg_body_inner, text=_t("openrouter_key"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7))
+        self._lbl_or = tk.Label(stg_body_inner, text=_t("openrouter_key"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8))
         self._or_key_var = tk.StringVar(value=self._mask_key(os.environ.get('OPENROUTER_API_KEY', '')))
         self._or_key_entry = tk.Entry(stg_body_inner, textvariable=self._or_key_var, font=("Consolas", 8),
                                       bg=self.BG3, fg=self.TEXT, insertbackground=self.TEXT, bd=0,
@@ -1272,13 +1272,13 @@ class StatusOverlay:
         self._or_key_entry.bind("<Return>", lambda e: self._save_key('openrouter'))
 
         self._key_save_btn = tk.Button(stg_body_inner, text=_t("save_keys"), fg=self.ACCENT,
-                                        bg=self.BG3, font=("Segoe UI", 7), bd=0, padx=6, pady=2,
+                                        bg=self.BG3, font=("Segoe UI", 8), bd=0, padx=6, pady=2,
                                         cursor="hand2", activebackground=self.ACCENT, activeforeground="white",
                                         command=self._save_all_keys)
         self._key_save_btn.pack(fill=tk.X, pady=(4, 0), padx=8)
         self._sync_provider_ui()
 
-        self._stg_status = tk.Label(stg_body_inner, text="", fg=self.GREEN, bg=self.CARD, font=("Segoe UI", 7))
+        self._stg_status = tk.Label(stg_body_inner, text="", fg=self.GREEN, bg=self.CARD, font=("Segoe UI", 8))
         self._stg_status.pack(anchor="w", pady=(2, 0), padx=8)
 
         self._build_agent_screen_setting(stg_body_inner)
@@ -1286,23 +1286,21 @@ class StatusOverlay:
         self._build_speech_setting(stg_body_inner)
         self._build_appearance_setting(stg_body_inner)
         self._build_telegram_setting(stg_body_inner)
-        self._build_privacy_setting(stg_body_inner)
-        self._build_routines_setting(stg_body_inner)
-        # Conversation / notes / learned / watches live in their own window (see _open_board).
+        # Privacy, routines, conversation, notes, learned, watches open in their own window (see _open_board).
         self._build_activity_setting(stg_body_inner)
 
         tk.Frame(stg_body_inner, bg=self.BORDER, height=1).pack(fill=tk.X, pady=(4, 3))
         self._lbl_donate = tk.Label(stg_body_inner, text=_t("donate_blurb"), fg=self.DIM, bg=self.CARD,
-                                    font=("Segoe UI", 7), wraplength=360, justify=tk.LEFT, anchor="w")
+                                    font=("Segoe UI", 8), wraplength=360, justify=tk.LEFT, anchor="w")
         self._lbl_donate.pack(fill=tk.X, padx=8, pady=(0, 4))
         self._donate_btn = tk.Button(stg_body_inner, text=_t("donate_btn"), fg=getattr(self, "ON_FG", "#ffffff"),
-                                      bg=self.ACCENT, font=("Segoe UI", 7), bd=0, padx=6, pady=4,
+                                      bg=self.ACCENT, font=("Segoe UI", 8), bd=0, padx=6, pady=4,
                                       cursor="hand2", activebackground=self.ACCENT2,
                                       activeforeground=getattr(self, "ON_FG", "#ffffff"),
                                       command=self._open_donate)
         self._donate_btn.pack(fill=tk.X, padx=8, pady=(0, 6))
         self._install_ext_btn = tk.Button(stg_body_inner, text=_t("install_ext"), fg=self.CYAN,
-                                           bg=self.BG3, font=("Segoe UI", 7), bd=0, padx=6, pady=2,
+                                           bg=self.BG3, font=("Segoe UI", 8), bd=0, padx=6, pady=2,
                                            cursor="hand2", activebackground=self.CYAN, activeforeground="black",
                                            command=self._open_extension_setup)
         self._install_ext_btn.pack(fill=tk.X, padx=8, pady=(0, 8))
@@ -1315,7 +1313,7 @@ class StatusOverlay:
         footer.pack(fill=tk.X, padx=P, pady=(8, 10))
         self._footer = footer
         self._footer_lbl = tk.Label(footer, text="", fg=self.DIM, bg=self.BG,
-                 font=("Segoe UI", 7))
+                 font=("Segoe UI", 8))
         self._footer_lbl.pack()
         self._refresh_footer()
 
@@ -1508,7 +1506,7 @@ class StatusOverlay:
     # ── Settings sections ────────────────────────────────────────────
     def _stg_heading(self, parent, text, first=False):
         from services.i18n import t as _t
-        lbl = tk.Label(parent, text=text, fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7))
+        lbl = tk.Label(parent, text=text, fg=self.TEXT, bg=self.CARD, font=("Segoe UI", 9, "bold"))
         lbl.pack(anchor="w", pady=((6 if first else 8), 0), padx=8)
         return lbl
 
@@ -1543,9 +1541,9 @@ class StatusOverlay:
         Tk's floating value box, which renders as a gap in the trough."""
         head = tk.Frame(parent, bg=self.CARD)
         head.pack(fill=tk.X, padx=8, pady=(8, 0))
-        name = tk.Label(head, text=label, fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7))
+        name = tk.Label(head, text=label, fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8))
         name.pack(side=tk.LEFT)
-        readout = tk.Label(head, text=fmt(value), fg=self.TEXT, bg=self.CARD, font=("Segoe UI", 7, "bold"))
+        readout = tk.Label(head, text=fmt(value), fg=self.TEXT, bg=self.CARD, font=("Segoe UI", 8, "bold"))
         readout.pack(side=tk.RIGHT)
 
         scale = ttk.Scale(parent, from_=from_, to=to, orient=tk.HORIZONTAL,
@@ -1607,11 +1605,11 @@ class StatusOverlay:
         )
         # Stays packed in place; re-packing after pack_forget would send it to
         # the bottom of the panel, far from the buttons it explains.
-        self._ptt_hint = tk.Label(parent, fg=self.CYAN, bg=self.CARD, font=("Segoe UI", 7),
+        self._ptt_hint = tk.Label(parent, fg=self.CYAN, bg=self.CARD, font=("Segoe UI", 8),
                                   anchor="w", justify=tk.LEFT, wraplength=360)
         self._ptt_hint.pack(fill=tk.X, padx=8, pady=(3, 0))
         self._refresh_ptt_hint()
-        self._lbl_echo = tk.Label(parent, text=_t("room_audio"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7))
+        self._lbl_echo = tk.Label(parent, text=_t("room_audio"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8))
         self._lbl_echo.pack(anchor="w", pady=(10, 2), padx=8)
         try:
             from services.voice_input import room_audio
@@ -1627,9 +1625,9 @@ class StatusOverlay:
         )
         self._echo_hint = tk.Label(parent, text=_t("room_speakers_hint" if room == "speakers" else "room_headphones_hint"),
                                    fg=self.DIM, bg=self.CARD,
-                                   font=("Segoe UI", 7), anchor="w", justify=tk.LEFT, wraplength=360)
+                                   font=("Segoe UI", 8), anchor="w", justify=tk.LEFT, wraplength=360)
         self._echo_hint.pack(fill=tk.X, padx=8, pady=(3, 0))
-        self._busy_voice_hint = tk.Label(parent, fg=self.DIM, bg=self.CARD, font=("Segoe UI", 7),
+        self._busy_voice_hint = tk.Label(parent, fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8),
                                          anchor="w", justify=tk.LEFT, wraplength=360)
         self._busy_voice_hint.pack(fill=tk.X, padx=8, pady=(6, 0))
         self._refresh_busy_voice_hint()
@@ -1776,7 +1774,7 @@ class StatusOverlay:
             self._apply_always_on_top,
         )
         self._reset_pos_btn = tk.Button(parent, text=_t("reset_position"), fg=self.TEXT, bg=self.BG3,
-                                        font=("Segoe UI", 7), bd=0, padx=6, pady=3, cursor="hand2",
+                                        font=("Segoe UI", 8), bd=0, padx=6, pady=3, cursor="hand2",
                                         activebackground=self.ACCENT, activeforeground=getattr(self, "ON_FG", "#ffffff"),
                                         command=self._reset_overlay_position)
         self._reset_pos_btn.pack(fill=tk.X, padx=8, pady=(4, 0))
@@ -1818,7 +1816,7 @@ class StatusOverlay:
         self._mem_list = tk.Frame(parent, bg=self.CARD)
         self._mem_list.pack(fill=tk.X, padx=8, pady=(2, 0))
         self._mem_clear_btn = tk.Button(parent, text=_t("memory_clear"), fg=self.RED, bg=self.BG3,
-                                        font=("Segoe UI", 7), bd=0, padx=6, pady=3, cursor="hand2",
+                                        font=("Segoe UI", 8), bd=0, padx=6, pady=3, cursor="hand2",
                                         activebackground=self.RED, activeforeground="#ffffff",
                                         command=self._clear_memory)
         self._mem_clear_btn.pack(fill=tk.X, padx=8, pady=(4, 0))
@@ -1849,12 +1847,12 @@ class StatusOverlay:
                 entries.append(text)
         if not entries:
             tk.Label(self._mem_list, text=_t("memory_empty"), fg=self.DIM, bg=self.CARD,
-                     font=("Segoe UI", 7), anchor="w").pack(fill=tk.X)
+                     font=("Segoe UI", 8), anchor="w").pack(fill=tk.X)
             return
         for text in entries:
             row = tk.Frame(self._mem_list, bg=self.BG3)
             row.pack(fill=tk.X, pady=1)
-            tk.Label(row, text=text[:70], fg=self.TEXT, bg=self.BG3, font=("Segoe UI", 7),
+            tk.Label(row, text=text[:70], fg=self.TEXT, bg=self.BG3, font=("Segoe UI", 8),
                      anchor="w", justify=tk.LEFT).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(6, 0), pady=3)
             tk.Button(row, text="×", fg=self.RED, bg=self.BG3, font=("Segoe UI", 8), bd=0,
                       padx=6, pady=0, cursor="hand2", activebackground=self.BG,
@@ -1900,7 +1898,7 @@ class StatusOverlay:
         rows = tk.Frame(parent, bg=self.CARD)
         rows.pack(fill=tk.X, padx=8, pady=(2, 0))
         btn = tk.Button(parent, text=_t(clear_key), fg=self.DIM, bg=self.BG3,
-                        font=("Segoe UI", 7), bd=0, padx=6, pady=3, cursor="hand2",
+                        font=("Segoe UI", 8), bd=0, padx=6, pady=3, cursor="hand2",
                         activebackground=self.RED, activeforeground="#ffffff",
                         command=clear_cmd)
         btn.pack(fill=tk.X, padx=8, pady=(4, 0))
@@ -1911,12 +1909,12 @@ class StatusOverlay:
             w.destroy()
         if not entries:
             tk.Label(container, text=empty_text, fg=self.DIM, bg=self.CARD,
-                     font=("Segoe UI", 7), anchor="w").pack(fill=tk.X)
+                     font=("Segoe UI", 8), anchor="w").pack(fill=tk.X)
             return
         for label, key in entries:
             row = tk.Frame(container, bg=self.BG3)
             row.pack(fill=tk.X, pady=1)
-            tk.Label(row, text=label[:78], fg=self.TEXT, bg=self.BG3, font=("Segoe UI", 7),
+            tk.Label(row, text=label[:78], fg=self.TEXT, bg=self.BG3, font=("Segoe UI", 8),
                      anchor="w", justify=tk.LEFT).pack(side=tk.LEFT, fill=tk.X, expand=True,
                                                        padx=(6, 0), pady=3)
             if on_delete is not None:
@@ -1962,7 +1960,7 @@ class StatusOverlay:
         self._stg_divider(parent)
         self._lbl_tg = self._stg_heading(parent, _t("tg_title"))
         self._tg_hint = tk.Label(parent, text=_t("tg_hint"), fg=self.DIM, bg=self.CARD,
-                                 font=("Segoe UI", 7), anchor="w", justify=tk.LEFT, wraplength=330)
+                                 font=("Segoe UI", 8), anchor="w", justify=tk.LEFT, wraplength=330)
         self._tg_hint.pack(fill=tk.X, padx=8)
         self._tg_token_var = tk.StringVar(value=self._mask_key(os.environ.get("DAVI_TELEGRAM_TOKEN", "")))
         self._tg_entry = tk.Entry(
@@ -1977,12 +1975,12 @@ class StatusOverlay:
         row.pack(fill=tk.X, padx=8, pady=(4, 0))
         self._tg_save = tk.Button(
             row, text=_t("tg_save"), fg=getattr(self, "ON_FG", "#ffffff"), bg=self.ACCENT,
-            font=("Segoe UI", 7, "bold"), bd=0, padx=8, pady=3, cursor="hand2",
+            font=("Segoe UI", 8, "bold"), bd=0, padx=8, pady=3, cursor="hand2",
             activebackground=self.ACCENT2, activeforeground="#ffffff", command=self._save_telegram_token,
         )
         self._tg_save.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 4))
         self._tg_unpair = tk.Button(
-            row, text=_t("tg_unpair"), fg=self.DIM, bg=self.BG3, font=("Segoe UI", 7), bd=0,
+            row, text=_t("tg_unpair"), fg=self.DIM, bg=self.BG3, font=("Segoe UI", 8), bd=0,
             padx=8, pady=3, cursor="hand2", activebackground=self.RED, activeforeground="#ffffff",
             command=self._unpair_telegram,
         )
@@ -2046,11 +2044,12 @@ class StatusOverlay:
         grid.pack(fill=tk.X, padx=8, pady=(4, 0))
         self._activity_btns = {}
         for i, (kind, key) in enumerate((("history", "history_title"), ("notes", "notes_title"),
-                                          ("learned", "memory_title"), ("watches", "watches_title"))):
+                                          ("learned", "memory_title"), ("watches", "watches_title"),
+                                          ("routines", "routines_title"), ("privacy", "blocklist_short"))):
             b = tk.Button(
-                grid, text=f"{_t(key)}  ▸", fg=self.TEXT, bg=self.BG3, font=("Segoe UI", 8), bd=0,
-                padx=8, pady=6, cursor="hand2", activebackground=self.ACCENT, activeforeground="#ffffff",
-                anchor="w", command=lambda k=kind: self._open_board(k),
+                grid, text=f"{_t(key)}  ▸", fg=self.TEXT, bg=self.BG3, font=("Segoe UI", 9), bd=0,
+                padx=8, pady=7, cursor="hand2", activebackground=self.ACCENT, activeforeground="#ffffff",
+                anchor="w", command=lambda k=kind: self._open_board(k, from_settings=True),
             )
             b.grid(row=i // 2, column=i % 2, sticky="ew", padx=2, pady=2)
             self._bind_hover(b, self.BG3, self.TEXT, self.ACCENT, "#ffffff")
@@ -2076,10 +2075,10 @@ class StatusOverlay:
         self._blocklist_entry.pack(fill=tk.X, padx=8, pady=(4, 0), ipady=3)
         self._blocklist_entry.bind("<Return>", lambda e: self._save_blocklist())
         self._blocklist_hint = tk.Label(parent, text=_t("blocklist_hint"), fg=self.DIM, bg=self.CARD,
-                                        font=("Segoe UI", 7), anchor="w", justify=tk.LEFT, wraplength=330)
+                                        font=("Segoe UI", 8), anchor="w", justify=tk.LEFT, wraplength=330)
         self._blocklist_hint.pack(fill=tk.X, padx=8)
         self._blocklist_save = tk.Button(
-            parent, text=_t("blocklist_save"), fg=self.DIM, bg=self.BG3, font=("Segoe UI", 7), bd=0,
+            parent, text=_t("blocklist_save"), fg=self.DIM, bg=self.BG3, font=("Segoe UI", 8), bd=0,
             padx=6, pady=3, cursor="hand2", activebackground=self.ACCENT, activeforeground="#ffffff",
             command=self._save_blocklist,
         )
@@ -2109,7 +2108,7 @@ class StatusOverlay:
         )
         self._routine_name.pack(fill=tk.X, ipady=3)
         self._routine_name_hint = tk.Label(form, text=_t("routine_name_hint"), fg=self.DIM, bg=self.CARD,
-                                           font=("Segoe UI", 7), anchor="w")
+                                           font=("Segoe UI", 8), anchor="w")
         self._routine_name_hint.pack(fill=tk.X)
         self._routine_steps = tk.Text(
             form, height=3, font=("Segoe UI", 8), bg=self.BG3, fg=self.TEXT, insertbackground=self.TEXT,
@@ -2118,11 +2117,11 @@ class StatusOverlay:
         )
         self._routine_steps.pack(fill=tk.X, pady=(4, 0))
         self._routine_steps_hint = tk.Label(form, text=_t("routine_steps_hint"), fg=self.DIM, bg=self.CARD,
-                                            font=("Segoe UI", 7), anchor="w")
+                                            font=("Segoe UI", 8), anchor="w")
         self._routine_steps_hint.pack(fill=tk.X)
         self._routine_save_btn = tk.Button(
             form, text=_t("routine_save"), fg=getattr(self, "ON_FG", "#ffffff"), bg=self.ACCENT,
-            font=("Segoe UI", 7, "bold"), bd=0, padx=8, pady=4, cursor="hand2",
+            font=("Segoe UI", 8, "bold"), bd=0, padx=8, pady=4, cursor="hand2",
             activebackground=self.ACCENT2, activeforeground="#ffffff", command=self._save_routine_from_form,
         )
         self._routine_save_btn.pack(fill=tk.X, pady=(4, 0))
@@ -2154,6 +2153,9 @@ class StatusOverlay:
     def refresh_routines(self):
         from services.i18n import t as _t
         from services.personal import list_routines
+        rows_widget = getattr(self, "_routines_rows", None)
+        if rows_widget is None or not rows_widget.winfo_exists():
+            return
         try:
             entries = [(f"{r['name']} — {len(r['steps'])}", r["name"]) for r in list_routines()]
         except Exception:
@@ -2543,7 +2545,7 @@ class StatusOverlay:
                       font=("Segoe UI Symbol", 13), cursor="hand2")
         ic.pack(pady=(10, 0))
         cap = tk.Label(cell, text=_t(i18n_key), fg=self.TEXT, bg=self.BG3,
-                       font=("Segoe UI", 7), cursor="hand2")
+                       font=("Segoe UI", 8), cursor="hand2")
         cap.pack(pady=(2, 10))
 
         def click(_e=None):
@@ -2588,7 +2590,7 @@ class StatusOverlay:
                       font=("Segoe UI Symbol", 13), cursor="hand2")
         ic.pack(pady=(10, 0))
         cap = tk.Label(cell, text=_t(title_key), fg=self.TEXT, bg=self.BG3,
-                       font=("Segoe UI", 7), cursor="hand2")
+                       font=("Segoe UI", 8), cursor="hand2")
         cap.pack(pady=(2, 0))
         pill = None
         if show_count:
@@ -2657,7 +2659,7 @@ class StatusOverlay:
                        anchor="center", justify="center")
         cap.pack()
         sub = tk.Label(col, text="Amir · Adem · Yousef", fg=self.DIM, bg=self.BG3,
-                       font=("Segoe UI", 7), cursor="hand2",
+                       font=("Segoe UI", 8), cursor="hand2",
                        anchor="center", justify="center")
         sub.pack()
         cv_r = tk.Canvas(inner, width=42, height=42, bg=self.BG3, highlightthickness=0, cursor="hand2")
@@ -4033,16 +4035,16 @@ class StatusOverlay:
         or_entry.pack(fill=tk.X, pady=(4, 0), ipady=5)
         or_link = tk.Label(
             body, text=_t("setup_keys_get") + " · openrouter.ai",
-            fg=self.ACCENT, bg=self.CARD, font=("Segoe UI", 7), cursor="hand2",
+            fg=self.ACCENT, bg=self.CARD, font=("Segoe UI", 8), cursor="hand2",
         )
         or_link.pack(anchor="w", pady=(4, 0))
         or_link.bind("<Button-1>", lambda e: self._open_key_url("https://openrouter.ai/keys"))
 
         tk.Label(body, text=_t("setup_keys_or"), fg=self.DIM, bg=self.CARD,
-                 font=("Segoe UI", 7, "bold")).pack(anchor="w", pady=(12, 0))
+                 font=("Segoe UI", 8, "bold")).pack(anchor="w", pady=(12, 0))
 
         tk.Label(body, text=_t("anth_key"), fg=self.DIM, bg=self.CARD,
-                 font=("Segoe UI", 7)).pack(anchor="w", pady=(8, 0))
+                 font=("Segoe UI", 8)).pack(anchor="w", pady=(8, 0))
         anth_var = tk.StringVar()
         tk.Entry(
             body, textvariable=anth_var, font=("Consolas", 8),
@@ -4051,13 +4053,13 @@ class StatusOverlay:
         ).pack(fill=tk.X, pady=(2, 0), ipady=4)
         anth_link = tk.Label(
             body, text=_t("setup_keys_get") + " · console.anthropic.com",
-            fg=self.ACCENT, bg=self.CARD, font=("Segoe UI", 7), cursor="hand2",
+            fg=self.ACCENT, bg=self.CARD, font=("Segoe UI", 8), cursor="hand2",
         )
         anth_link.pack(anchor="w", pady=(3, 0))
         anth_link.bind("<Button-1>", lambda e: self._open_key_url("https://console.anthropic.com/"))
 
         tk.Label(body, text=_t("groq_key"), fg=self.DIM, bg=self.CARD,
-                 font=("Segoe UI", 7)).pack(anchor="w", pady=(8, 0))
+                 font=("Segoe UI", 8)).pack(anchor="w", pady=(8, 0))
         groq_var = tk.StringVar()
         tk.Entry(
             body, textvariable=groq_var, font=("Consolas", 8),
@@ -4066,12 +4068,12 @@ class StatusOverlay:
         ).pack(fill=tk.X, pady=(2, 0), ipady=4)
         groq_link = tk.Label(
             body, text=_t("setup_keys_get") + " · console.groq.com",
-            fg=self.ACCENT, bg=self.CARD, font=("Segoe UI", 7), cursor="hand2",
+            fg=self.ACCENT, bg=self.CARD, font=("Segoe UI", 8), cursor="hand2",
         )
         groq_link.pack(anchor="w", pady=(3, 0))
         groq_link.bind("<Button-1>", lambda e: self._open_key_url("https://console.groq.com/"))
 
-        status = tk.Label(body, text="", fg=self.RED, bg=self.CARD, font=("Segoe UI", 7))
+        status = tk.Label(body, text="", fg=self.RED, bg=self.CARD, font=("Segoe UI", 8))
         status.pack(anchor="w", pady=(8, 0))
         self._setup_keys_status = status
         self._setup_or_var = or_var
@@ -5049,10 +5051,10 @@ class StatusOverlay:
         close = tk.Button(head, text="×", fg=self.DIM, bg=self.BG2, font=("Segoe UI", 12),
                           bd=0, padx=8, pady=0, cursor="hand2",
                           activebackground="#3b1520", activeforeground=self.RED,
-                          command=self._close_board)
+                          command=lambda: self._close_board(back=True))
         close.pack(side=tk.RIGHT, padx=(1, 8), pady=8)
         self._board_clear_btn = tk.Button(
-            head, text=_t("board_clear"), fg=self.DIM, bg=self.BG2, font=("Segoe UI", 7),
+            head, text=_t("board_clear"), fg=self.DIM, bg=self.BG2, font=("Segoe UI", 8),
             bd=0, padx=8, pady=2, cursor="hand2", activebackground=self.RED, activeforeground="#ffffff",
             command=self._clear_board_kind,
         )
@@ -5074,6 +5076,15 @@ class StatusOverlay:
         tree.bind("<Button-1>", self._on_board_click)
         tree.bind("<MouseWheel>", lambda e: tree.yview_scroll(int(-1 * (e.delta / 120)), "units"))
         self._board_tree = tree
+        self._board_table_wrap = table_wrap
+        self._board_body = body
+        # Privacy / Routines panels replace the table when opened from Settings.
+        self._board_custom = tk.Frame(body, bg=self.CARD)
+        self._board_back = tk.Button(
+            head, text="‹ " + _t("settings"), fg=self.ACCENT, bg=self.BG2, font=("Segoe UI", 8, "bold"),
+            bd=0, padx=8, pady=2, cursor="hand2", activebackground=self.BG3, activeforeground=self.ACCENT,
+            command=self._board_back_to_settings,
+        )
         self._board_head = head
         self._sync_board_headings()
         empty = tk.Label(body, text="", fg=self.DIM, bg=self.CARD, font=("Segoe UI", 9))
@@ -5087,12 +5098,21 @@ class StatusOverlay:
             return
         kind = getattr(self, "_board_kind", "tasks")
         titles = {"history": "history_title", "notes": "notes_title", "learned": "memory_title", "watches": "watches_title"}
+        panels = {"privacy": "blocklist_title", "routines": "routines_title"}
         try:
             clear_btn = getattr(self, "_board_clear_btn", None)
             if clear_btn is not None:
                 clear_btn.pack_forget()
                 if kind in titles:
                     clear_btn.pack(side=tk.RIGHT, padx=(0, 4), pady=8)
+            back_btn = getattr(self, "_board_back", None)
+            if back_btn is not None:
+                back_btn.pack_forget()
+                if getattr(self, "_board_from_settings", False):
+                    back_btn.pack(side=tk.LEFT, padx=(8, 0), pady=8)
+            if kind in panels:
+                self._lbl_board.config(text=_t(panels[kind]))
+                return
             if kind in titles:
                 self._lbl_board.config(text=_t(titles[kind]))
                 tree.heading("status", text=_t("col_who") if kind == "history" else "")
@@ -5122,7 +5142,12 @@ class StatusOverlay:
             return
         self._open_board(kind)
 
-    def _open_board(self, kind):
+    def _board_back_to_settings(self):
+        self._close_board()
+        self._open_settings()
+
+    def _open_board(self, kind, from_settings=False):
+        self._board_from_settings = bool(from_settings or getattr(self, "_settings_open", False))
         self._close_settings()
         self._board_kind = kind
         self._board_open = True
@@ -5138,13 +5163,17 @@ class StatusOverlay:
         except Exception as e:
             print(f"[UI] board open: {e}")
 
-    def _close_board(self):
+    def _close_board(self, back=False):
+        was_from_settings = getattr(self, "_board_from_settings", False)
         self._board_open = False
         self._board_kind = None
+        self._board_from_settings = False
         try:
             self._board_win.withdraw()
         except Exception:
             pass
+        if back and was_from_settings:
+            self._open_settings()
 
     def _position_board_window(self):
         if not getattr(self, "_board_open", False):
@@ -5239,6 +5268,27 @@ class StatusOverlay:
         for item in tree.get_children():
             tree.delete(item)
         kind = getattr(self, "_board_kind", "tasks")
+        # Panel kinds swap the table for a form.
+        custom = getattr(self, "_board_custom", None)
+        wrap = getattr(self, "_board_table_wrap", None)
+        if custom is not None and wrap is not None:
+            if kind in ("privacy", "routines"):
+                wrap.pack_forget()
+                for w in custom.winfo_children():
+                    w.destroy()
+                custom.pack(fill=tk.BOTH, expand=True, padx=4, pady=(0, 10))
+                if kind == "privacy":
+                    self._build_privacy_setting(custom)
+                else:
+                    self._build_routines_setting(custom)
+                try:
+                    self._board_empty.config(text="")
+                except tk.TclError:
+                    pass
+                return
+            custom.pack_forget()
+            if not wrap.winfo_ismapped():
+                wrap.pack(fill=tk.BOTH, expand=True, padx=10, pady=(4, 10))
         rows = 0
         if kind == "history":
             from services.personal import list_history
