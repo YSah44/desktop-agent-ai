@@ -7096,6 +7096,11 @@ if __name__ == "__main__":
         _updater.start_background_checks()
     except Exception as e:
         print(f"[UPDATE] init: {e}")
+    try:
+        from services import context_facts as _ctx
+        _ctx.start_background(delay=15)
+    except Exception as e:
+        print(f"[CONTEXT] init: {e}")
 
     try:
         from services.safety import set_refuse_hook

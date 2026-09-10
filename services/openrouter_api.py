@@ -96,6 +96,13 @@ def generate(messages, prompt, replace_dict=None):
             life_lines = []
         if life_lines:
             mem_section += "\n".join(life_lines) + "\n"
+        try:
+            from services.context_facts import prompt_lines as _ctx_lines
+            ctx = _ctx_lines()
+        except Exception:
+            ctx = []
+        if ctx:
+            mem_section += "\n".join(ctx) + "\n"
         system_message += mem_section
     except Exception:
         pass

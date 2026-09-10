@@ -280,6 +280,16 @@ def _field(raw, name):
 
 
 def weather_line():
+    # Open-Meteo at the location Aemyos worked out on its own (see context_facts);
+    # wttr.in stays as the fallback.
+    try:
+        from services.context_facts import weather as _wx
+        from services.i18n import get_language
+        r = _wx(get_language())
+        if r.get("success") and r.get("text"):
+            return {"success": True, "text": r["text"][:200]}
+    except Exception:
+        pass
     try:
         req = urllib.request.Request(
             "https://wttr.in/?format=3",
