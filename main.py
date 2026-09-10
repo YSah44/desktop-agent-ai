@@ -3,6 +3,7 @@ warnings.filterwarnings("ignore")
 import os
 os.environ["PYTHONIOENCODING"] = "utf-8"
 import sys
+import re
 import traceback
 
 from services.paths import FROZEN as _FROZEN, data_path as _data_path, res_path as _res_path
@@ -763,6 +764,11 @@ class StatusOverlay:
         self._ver_lbl = tk.Label(self._ver_pill, text=DAVI_VERSION, fg=getattr(self, "ON_FG", "#ffffff"), bg=self.ACCENT,
                                  font=("Segoe UI", 8, "bold"))
         self._ver_lbl.pack(padx=6, pady=1)
+        # Appears next to the version once a newer release is known; click installs it.
+        self._update_pill = tk.Label(self._ver_pill.master, text="", fg="#ffffff", bg=self.GREEN,
+                                     font=("Segoe UI", 8, "bold"), cursor="hand2", padx=6)
+        self._update_pill.bind("<Button-1>", lambda e: self._install_update())
+        self._update_info = None
         self._dictation_badge = tk.Label(name_row, text="", fg=getattr(self, "ON_FG", "#ffffff"),
                                          bg=self.ACCENT, font=("Segoe UI", 8, "bold"))
         hdr_right = tk.Frame(header, bg=self.BG2)
@@ -1160,6 +1166,21 @@ class StatusOverlay:
             fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8),
         )
         self._stg_meta.pack(anchor="w", pady=(8, 0), padx=8)
+        upd_row = tk.Frame(stg_body_inner, bg=self.CARD)
+        upd_row.pack(fill=tk.X, padx=8, pady=(4, 0))
+        self._update_check_btn = tk.Button(
+            upd_row, text=_t("update_check"), fg=self.TEXT, bg=self.BG3, font=("Segoe UI", 8), bd=0,
+            padx=8, pady=3, cursor="hand2", activebackground=self.ACCENT, activeforeground="#ffffff",
+            command=self._check_updates_clicked,
+        )
+        self._update_check_btn.pack(side=tk.LEFT)
+        self._update_status = tk.Label(upd_row, text="", fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8), anchor="w")
+        self._update_status.pack(side=tk.LEFT, padx=(8, 0))
+        self._update_install_btn = tk.Button(
+            stg_body_inner, text=_t("update_install"), fg=getattr(self, "ON_FG", "#ffffff"), bg=self.GREEN,
+            font=("Segoe UI", 8, "bold"), bd=0, padx=8, pady=4, cursor="hand2",
+            activebackground=self.ACCENT, activeforeground="#ffffff", command=self._install_update,
+        )
         self._lbl_language = tk.Label(stg_body_inner, text=_t("language"), fg=self.DIM, bg=self.CARD, font=("Segoe UI", 8))
         self._lbl_language.pack(anchor="w", pady=(8, 0), padx=8)
         lang_names = list(LANGUAGES.values())
@@ -3716,6 +3737,82 @@ class StatusOverlay:
             pass
         print(f"[TYPED] {text}")
         return "break"
+
+    def _notify_update(self, info):
+        """Called from the updater thread when a newer release exists."""
+        self._update_info = info
+        from services.i18n import t as _t
+
+        def _show():
+            try:
+                self._update_pill.config(text=f"↑ {info['version']}")
+                if not self._update_pill.winfo_ismapped():
+                    self._update_pill.pack(side=tk.LEFT, padx=(6, 0))
+                lbl = getattr(self, "_update_status", None)
+                if lbl is not None:
+                    lbl.config(text=_t("update_available").replace("{v}", info["version"]), fg=self.GREEN)
+                    btn = getattr(self, "_update_install_btn", None)
+                    if btn is not None and not btn.winfo_ismapped():
+                        btn.pack(fill=tk.X, padx=8, pady=(4, 0), before=self._lbl_language)
+            except Exception as e:
+                print(f"[UPDATE] ui: {e}")
+        self.root.after(0, _show)
+
+    def _check_updates_clicked(self):
+        from services.i18n import t as _t
+        from services import updater
+        lbl = getattr(self, "_update_status", None)
+        if updater.is_dev_build():
+            if lbl is not None:
+                lbl.config(text=_t("update_dev"), fg=self.DIM)
+            return
+        if lbl is not None:
+            lbl.config(text=_t("update_checking"), fg=self.DIM)
+
+        def _work():
+            try:
+                info = updater.check()
+            except Exception as e:
+                msg, color, info = _t("update_failed").replace("{e}", str(e)[:80]), self.RED, None
+            else:
+                if info:
+                    self._notify_update(info)
+                    return
+                msg, color = _t("update_none"), self.GREEN
+            if lbl is not None:
+                self.root.after(0, lambda: lbl.config(text=msg, fg=color))
+        threading.Thread(target=_work, daemon=True).start()
+
+    def _install_update(self):
+        from services.i18n import t as _t
+        from services import updater
+        info = self._update_info or updater.latest()
+        if not info:
+            self._check_updates_clicked()
+            return
+        lbl = getattr(self, "_update_status", None)
+
+        def _status(text, color=None):
+            def _set():
+                try:
+                    if lbl is not None:
+                        lbl.config(text=text, fg=color or self.DIM)
+                    self._update_pill.config(text=text[:24])
+                except Exception:
+                    pass
+            self.root.after(0, _set)
+
+        def _work():
+            try:
+                _status(_t("update_downloading").replace("{p}", "0"))
+                path = updater.download(info, progress=lambda p: _status(_t("update_downloading").replace("{p}", str(int(p * 100)))))
+                _status(_t("update_installing"), self.GREEN)
+                update_agent_response(_t("update_installing"), speak=True)
+                time.sleep(1.5)
+                updater.install(path)
+            except Exception as e:
+                _status(_t("update_failed").replace("{e}", str(e)[:80]), self.RED)
+        threading.Thread(target=_work, daemon=True).start()
 
     def _face_stop(self):
         """Stop button: silence her now and drop whatever task is running."""
@@ -6389,6 +6486,14 @@ def run_desktop_agent(task, max_iterations=15, use_voice=True, voice_model="tiny
                                     update_agent_response(msg, speak=speak)
                                     print(f"[FAST] {action} {msg}")
                                     fast_handled = True
+                                if not fast_handled and re.match(r"^\s*(update|upgrade|guncelle|güncelle)\s+(aemyos|yourself|kendini)\b", voice_text, re.I):
+                                    add_task(voice_text)
+                                    complete_current_task()
+                                    if status_window is not None:
+                                        status_window.root.after_idle(status_window._install_update)
+                                        update_agent_response(t("update_checking"), speak=True)
+                                    print("[FAST] update_aemyos")
+                                    fast_handled = True
                                 if not fast_handled:
                                     from services.messaging import parse_request as _parse_chat, send_message as _send_chat
                                     chat = _parse_chat(voice_text)
@@ -6922,6 +7027,18 @@ if __name__ == "__main__":
             print("[TG] bot started (paired)" if not _code else f"[TG] bot started — pairing code: {_code}")
     except Exception as e:
         print(f"[TG] start failed: {e}")
+
+    try:
+        from services import updater as _updater
+
+        def _on_update(info):
+            win = status_window
+            if win is not None:
+                win._notify_update(info)
+        _updater.add_listener(_on_update)
+        _updater.start_background_checks()
+    except Exception as e:
+        print(f"[UPDATE] init: {e}")
 
     try:
         from services.safety import set_refuse_hook
