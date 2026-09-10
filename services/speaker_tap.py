@@ -87,7 +87,7 @@ def _resample(audio, src, dst):
     return np.interp(x_new, x_old, audio).astype(np.float32)
 
 
-def cancel_echo(mic, ref, sr=16000):
+def cancel_echo(mic, ref, sr=16000, max_lag_sec=0.12):
     """Subtract a delayed/scaled speaker mix from a mic block. Returns (out, similarity)."""
     mic = np.asarray(mic, dtype=np.float32).reshape(-1)
     if ref is None:
@@ -96,7 +96,7 @@ def cancel_echo(mic, ref, sr=16000):
     n = len(mic)
     if n < 32 or len(ref) < n:
         return mic, 0.0
-    max_lag = min(len(ref) - n, max(1, int(sr * 0.12)))
+    max_lag = min(len(ref) - n, max(1, int(sr * float(max_lag_sec))))
     step = max(1, int(sr * 0.004))
     mic_n = float(np.linalg.norm(mic)) + 1e-8
 

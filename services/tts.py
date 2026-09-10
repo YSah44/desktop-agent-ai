@@ -126,6 +126,41 @@ def playback_progress():
     return 0.0
 
 
+_play_samples = None
+_play_rate = 24000
+
+
+def reference_window(n, rate, lookback=0.35):
+    """The TTS audio the speakers are playing right now, ending at the current
+    position, at least `n` samples plus `lookback` seconds long, resampled to `rate`.
+    None when nothing is playing."""
+    samples = _play_samples
+    if samples is None or not is_playing:
+        return None
+    try:
+        import numpy as np
+        import pygame
+        pos_ms = pygame.mixer.music.get_pos()
+        if not isinstance(pos_ms, (int, float)) or pos_ms < 0:
+            return None
+        src_rate = int(_play_rate or 24000)
+        end = int(pos_ms / 1000.0 * src_rate) + int(0.05 * src_rate)
+        need = int((n / float(rate)) * src_rate) + int(lookback * src_rate)
+        start = max(0, end - need)
+        end = min(len(samples), end)
+        if end - start < need // 2:
+            return None
+        chunk = samples[start:end]
+        if src_rate != rate:
+            dst_len = max(2, int(round(len(chunk) * rate / float(src_rate))))
+            x_old = np.linspace(0.0, 1.0, len(chunk), endpoint=False)
+            x_new = np.linspace(0.0, 1.0, dst_len, endpoint=False)
+            chunk = np.interp(x_new, x_old, chunk).astype(np.float32)
+        return chunk
+    except Exception:
+        return None
+
+
 def playback_length():
     """Length of the current audible utterance in seconds. 0 when idle."""
     return float(_play_est_sec or 0.0) if is_playing else 0.0
@@ -193,7 +228,7 @@ def speak(text):
     _mark_tts_started()
 
     def _do_speak():
-        global is_speaking, is_playing, last_ended_at, _jobs, _play_started, _play_est_sec
+        global is_speaking, is_playing, last_ended_at, _jobs, _play_started, _play_est_sec, _play_samples, _play_rate
         with _tts_lock:
             if my_gen != _speak_gen:
                 with _jobs_lock:
@@ -223,9 +258,23 @@ def speak(text):
                 pygame.mixer.music.load(tmp)
                 pygame.mixer.music.set_volume(max(0.0, min(1.0, volume / 100.0)))
                 try:
-                    _play_est_sec = float(pygame.mixer.Sound(tmp).get_length() or 0.0)
+                    snd = pygame.mixer.Sound(tmp)
+                    _play_est_sec = float(snd.get_length() or 0.0)
+                    # Keep the decoded waveform: the mic path compares what it hears
+                    # against exactly this, so her own voice is never mistaken for the user.
+                    try:
+                        import numpy as _np
+                        import pygame.sndarray
+                        arr = pygame.sndarray.array(snd)
+                        if arr.ndim > 1:
+                            arr = arr.mean(axis=1)
+                        _play_samples = (arr.astype(_np.float32) / 32768.0)
+                        _play_rate = int((pygame.mixer.get_init() or (24000,))[0])
+                    except Exception:
+                        _play_samples = None
                 except Exception:
                     _play_est_sec = 0.0
+                    _play_samples = None
                 if _play_est_sec < 0.25:
                     _play_est_sec = _estimate_speech_sec(text)
                 pygame.mixer.music.play()
@@ -265,6 +314,7 @@ def speak(text):
                 print(f"[TTS] Error: {e}")
             finally:
                 is_playing = False
+                _play_samples = None
                 with _jobs_lock:
                     _jobs = max(0, _jobs - 1)
                     still = _jobs > 0

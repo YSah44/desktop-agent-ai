@@ -113,7 +113,8 @@ def set_room_audio(mode):
 
 def near_field_user(energy, prev, bleed_floor, sim, headphones=False):
     """True when the mic looks like a person close to it, not speaker bleed."""
-    if (not headphones) and sim > 0.52:
+    # A block that matches what the speakers are playing is her, whatever the room setting.
+    if sim > (0.52 if not headphones else 0.6):
         return False
     floor = max(float(bleed_floor or 0.0), 0.008)
     prev = float(prev or 0.0)
@@ -876,13 +877,23 @@ class VoiceInputProcessor:
 
     def _apply_echo(self, audio_data):
         sim = 0.0
+        sr = int(getattr(self, "sample_rate", 16000) or 16000)
         try:
             from services.speaker_tap import echo_cancel_enabled, latest as _spk_latest, cancel_echo
-            if echo_cancel_enabled():
-                ref = _spk_latest(len(audio_data), int(getattr(self, "sample_rate", 16000) or 16000))
-                audio_data, sim = cancel_echo(
-                    audio_data, ref, sr=int(getattr(self, "sample_rate", 16000) or 16000)
-                )
+            # While she talks we know the exact waveform being played: match the mic
+            # against it (any output device, no Stereo Mix needed). Otherwise fall back
+            # to the speaker tap for music / video bleed.
+            ref = None
+            try:
+                from services.tts import reference_window
+                ref = reference_window(len(audio_data), sr)
+            except Exception:
+                ref = None
+            if ref is not None:
+                audio_data, sim = cancel_echo(audio_data, ref, sr=sr, max_lag_sec=0.3)
+            elif echo_cancel_enabled():
+                ref = _spk_latest(len(audio_data), sr)
+                audio_data, sim = cancel_echo(audio_data, ref, sr=sr)
         except Exception:
             sim = 0.0
         energy = float(np.mean(np.abs(audio_data)))
