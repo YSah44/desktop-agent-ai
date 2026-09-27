@@ -31,6 +31,13 @@ This GitHub repository is **`desktop-agent-ai`**. Product site: **[aemyos.ai](ht
 <p align="center">No Python needed for the installer · open source, run from source with Python if you prefer</p>
 
 <p align="center">
+  <a href="https://www.youtube.com/watch?v=ZJSMWLT0s94">
+    <img src="https://i.ytimg.com/vi/ZJSMWLT0s94/hqdefault.jpg" width="480" alt="Aemyos 60-second demo — click to watch">
+  </a>
+</p>
+<p align="center"><b><a href="https://www.youtube.com/watch?v=ZJSMWLT0s94">Watch the 60-second demo</a></b> · <a href="https://www.youtube.com/watch?v=Jk2pJzD2pFY">full 4-minute walkthrough</a></p>
+
+<p align="center">
   <img src="docs/app-full.png" alt="Aemyos Windows desktop AI agent overlay" width="280">
   &nbsp;
   <img src="docs/app-compact.png" alt="Aemyos face-mode voice assistant" width="200">
