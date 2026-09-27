@@ -13,7 +13,8 @@ This GitHub repository is **`desktop-agent-ai`**. Product site: **[aemyos.ai](ht
 | Version | 1.8 |
 
 <p align="center">
-  <a href="https://github.com/YSah44/desktop-agent-ai/releases/latest/download/Aemyos-Setup.exe"><img src="https://img.shields.io/badge/Download-Aemyos--Setup.exe%20%C2%B7%20Windows%2010%2F11-7c93ff?style=for-the-badge&logo=windows&logoColor=white" alt="Download Aemyos for Windows"></a>
+  <a href="https://apps.microsoft.com/detail/XPFD1X6BZ2K5QZ"><img src="https://img.shields.io/badge/Microsoft%20Store-Get%20Aemyos%20%C2%B7%20Windows%2010%2F11-7c93ff?style=for-the-badge&logo=windows&logoColor=white" alt="Get Aemyos from the Microsoft Store"></a>
+  <a href="https://chromewebstore.google.com/detail/aemyos-desktop-agent-brid/omcjpndfjgppkcihhlhgclnmkhcmmjoi"><img src="https://img.shields.io/badge/Chrome%20Web%20Store-Add%20the%20extension-7c93ff?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Add the Aemyos extension to Chrome"></a>
 </p>
 <p align="center">
   <a href="https://github.com/YSah44/desktop-agent-ai/releases/latest"><img src="https://img.shields.io/github/v/release/YSah44/desktop-agent-ai?label=release&color=7c93ff" alt="Latest release"></a>
@@ -45,9 +46,11 @@ Aemyos is a **computer-use / desktop automation** voice assistant that runs on t
 
 Without the Chrome extension it still uses the keyboard and the screen.
 
-## Download (Windows installer)
+## Download
 
-**[Aemyos-Setup-1.8.exe](https://github.com/YSah44/desktop-agent-ai/releases/latest/download/Aemyos-Setup.exe)** — Windows 10 / 11, **no Python needed**. Download, double-click, Next. On first start paste your keys in Settings (kept in `%APPDATA%\Aemyos\.env`).
+**[Get it from the Microsoft Store](https://apps.microsoft.com/detail/XPFD1X6BZ2K5QZ)** — Windows 10 / 11, **no Python needed**. Reviewed by Microsoft, code-signed, and it updates itself. On first start paste your key in Settings (kept in `%APPDATA%\Aemyos\.env`).
+
+Prefer the installer directly? **[Aemyos-Setup-1.8.exe](https://github.com/YSah44/desktop-agent-ai/releases/latest/download/Aemyos-Setup.exe)** — same build, same signature, no auto-update.
 
 SHA256 of `Aemyos-Setup-1.8.exe`:
 
@@ -107,11 +110,9 @@ venv\Scripts\python.exe -u main.py
 
 ## Chrome extension (optional)
 
-Folder in this repo: [`chrome-extension`](https://github.com/YSah44/desktop-agent-ai/tree/main/chrome-extension)
+**[Add to Chrome from the Chrome Web Store](https://chromewebstore.google.com/detail/aemyos-desktop-agent-brid/omcjpndfjgppkcihhlhgclnmkhcmmjoi)** — one click. The extension only talks to Aemyos on your own machine over a local connection; it has no server of its own.
 
-1. Run `setup_extension.bat` or open `chrome://extensions`
-2. Enable Developer mode
-3. Load unpacked → the `chrome-extension` folder
+Working on the extension itself? The source is in [`chrome-extension`](https://github.com/YSah44/desktop-agent-ai/tree/main/chrome-extension) — open `chrome://extensions`, enable Developer mode, then Load unpacked.
 
 ## Safety
 
@@ -151,4 +152,4 @@ Ethereum, Base, Arbitrum, Optimism, Polygon, BNB Chain, Avalanche.
 
 Developer preview. Use on a machine you own. You are responsible for what you ask it to do.
 
-Questions: [aemyos.ai/contact.html](https://aemyos.ai/contact.html) · `support@aemyos.ai`
+Questions: [aemyos.ai/contact.html](https://aemyos.ai/contact.html) · `admin@aemyos.ai`
