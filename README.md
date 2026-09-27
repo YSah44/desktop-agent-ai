@@ -22,6 +22,12 @@ This GitHub repository is **`desktop-agent-ai`**. Product site: **[aemyos.ai](ht
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT"></a>
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white" alt="Python 3.10+">
 </p>
+<p align="center">
+  <a href="https://aemyos.ai"><img src="https://img.shields.io/badge/Website-aemyos.ai-7c93ff?style=flat-square&logo=googlechrome&logoColor=white" alt="Website"></a>
+  <a href="https://www.linkedin.com/company/aemyos"><img src="https://img.shields.io/badge/LinkedIn-Aemyos-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
+  <a href="https://www.youtube.com/@Aemyos"><img src="https://img.shields.io/badge/YouTube-%40Aemyos-FF0000?style=flat-square&logo=youtube&logoColor=white" alt="YouTube"></a>
+  <a href="https://www.buymeacoffee.com/aemyos"><img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-aemyos-FFDD00?style=flat-square&logo=buymeacoffee&logoColor=black" alt="Buy me a coffee"></a>
+</p>
 <p align="center">No Python needed for the installer · open source, run from source with Python if you prefer</p>
 
 <p align="center">
