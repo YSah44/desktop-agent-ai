@@ -32,7 +32,7 @@ This GitHub repository is **`desktop-agent-ai`**. Product site: **[aemyos.ai](ht
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=ZJSMWLT0s94">
-    <img src="https://i.ytimg.com/vi/ZJSMWLT0s94/hqdefault.jpg" width="480" alt="Aemyos 60-second demo — click to watch">
+    <img src="https://i.ytimg.com/vi/ZJSMWLT0s94/maxresdefault.jpg" width="480" alt="Aemyos 60-second demo — click to watch">
   </a>
 </p>
 <p align="center"><b><a href="https://www.youtube.com/watch?v=ZJSMWLT0s94">Watch the 60-second demo</a></b> · <a href="https://www.youtube.com/watch?v=Jk2pJzD2pFY">full 4-minute walkthrough</a></p>
