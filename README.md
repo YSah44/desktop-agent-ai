@@ -129,9 +129,9 @@ Prefer crypto? Each coin to its own address — [aemyos.ai/donate.html](https://
 
 **Bitcoin**
 
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=96x96&data=bitcoin:bc1qrx62dfggt9hsgpvtgd666adylpnc9dr2jr6tqn" width="80" height="80" alt="BTC">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=96x96&data=bitcoin:bc1qrxu2wfgsca4jgpmcgw0007wy6pehawr2lr0tqv" width="80" height="80" alt="BTC">
 
-`bc1qrx62dfggt9hsgpvtgd666adylpnc9dr2jr6tqn`
+`bc1qrxu2wfgsca4jgpmcgw0007wy6pehawr2lr0tqv`
 
 **Solana**
 
